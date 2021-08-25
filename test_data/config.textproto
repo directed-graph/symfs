@@ -1,0 +1,29 @@
+# proto-file: protos/symfs.proto
+# proto-name: everchanging.symfs.Config
+
+path: "/test/output/path"
+
+# For testing purposes, we will replace {DATA_PATH} with the path to data.
+source_paths: "{DATA_PATH}/test_data"
+
+group_by {
+  name: "by_s"
+  field: "s"
+}
+
+group_by {
+  name: "by_rs"
+  field: "rs"
+  max_repeated_group: 2
+}
+
+group_by {
+  name: "by_m"
+  field: "m.value"
+}
+
+# Cannot support intermediary repeated fields.
+# group_by {
+#   name: "by_rm"
+#   field: "rm.value"
+# }

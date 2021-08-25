@@ -1,5 +1,6 @@
 load("@com_github_grpc_grpc//bazel:python_rules.bzl", "py_proto_library")
 load("@rules_proto//proto:defs.bzl", "proto_library")
+load("@subpar//:subpar.bzl", "par_binary")
 
 proto_library(
   name = "ext_proto",
@@ -37,5 +38,26 @@ py_library(
   srcs = ["ext_lib.py"],
   deps = [
     ":ext_py_proto",
+  ],
+)
+
+par_binary(
+  name = "symfs",
+  srcs = ["symfs.py"],
+  deps = [
+    ":ext_lib",
+    ":symfs_py_proto",
+  ],
+)
+
+py_test(
+  name = "symfs_test",
+  srcs = ["symfs_test.py"],
+  data = glob(["test_data/*"]),
+  deps = [
+    ":symfs",
+    ":symfs_py_proto",
+    "@rules_python//python/runfiles",
+    "@bazel//third_party/py/abseil",
   ],
 )

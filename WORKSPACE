@@ -23,3 +23,9 @@ git_repository(
     tag = "2.0.0",
 )
 
+# absl deps
+git_repository(
+    name = "bazel",
+    remote = "https://github.com/bazelbuild/bazel",
+    tag = "4.2.0",
+)

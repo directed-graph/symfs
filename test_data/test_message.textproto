@@ -1,0 +1,21 @@
+# proto-file: protos/ext.proto
+# proto-name: everchanging.symfs.ext.TestMessage
+
+s: "s_value"
+
+rs: "rs_value_0"
+
+rs: "rs_value_1"
+
+m {
+  value: "v_value"
+}
+
+rm {
+  value: "v_value_0"
+}
+
+rm {
+  value: "v_value_1"
+}
+
