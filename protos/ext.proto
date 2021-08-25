@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package everchanging.symfs.ext;
+
+// Next tag: 5
+message TestMessage {
+  // Next tag: 2
+  message InnerTestMessage {
+    string value = 1;
+  }
+  string s = 1;
+  repeated string rs = 2;
+  InnerTestMessage m = 3;
+  repeated InnerTestMessage rm = 4;
+}

@@ -1,0 +1,65 @@
+syntax = "proto3";
+
+import "google/protobuf/any.proto";
+
+package everchanging.symfs;
+
+// Describes the metadata of a particular directory.
+// Next tag: 2
+message Metadata {
+  // The actual metadata is wrapped in an Any proto. The proto type used here
+  // must be included in either `proto/ext.proto` or another proto definition
+  // that is then built into the binary via `ext_lib.py`.
+  google.protobuf.Any data = 1;
+}
+
+// Describes how a SymFs is to be generated. A SymFs can be thought of as a
+// directory under which is a set of symlinks to other directories; what
+// symlinks are created and which directories they link to are defined in this
+// configuration and influenced by the Metadata of the underlying directories.
+// Next tag: 4
+message Config {
+  // Next tag: 3
+  message GroupBy {
+    // The name of this group. The group will be generated under a subdirectory
+    // of this name under SymFs. If none is provided, then the group will be
+    // written directly to the root of the SymFs. Highly recommended to be set
+    // if multiple `group_by` fields are provided.
+    string name = 1;
+
+    // The field name with which to group by. This field name can be nested,
+    // and will be taken directly from Metadata.data (for example, if you put
+    // `a.b.c`, then we will effectively group by `Metadata.data.a.b.c`). The
+    // SymFs directory name will be derived from the group.
+    //
+    // If the field name is a `repeated` field, then each will be treated as a
+    // single group by default. For example, if the field you provide is `a`,
+    // and `Metadata.data.a` is `repeated`, each element in `Metadata.data.a`
+    // will be a group, and that item will be associated with each group. See
+    // `max_repeated_group` on changing this behavior.
+    //
+    // Currently, nested Any protos are not supported. Further, any field other
+    // than the terminal field cannot be a repeated field. Finally, the
+    // terminal field must be of a scalar or repeated scalar type.
+    string field = 2;
+
+    // Determines the maximum subgroup to form if `field` is `repeated`. If 0
+    // (default) or 1, each element will be treated as a group. Otherwise, all
+    // possible sizes up to the given size will be generated.
+    int32 max_repeated_group = 3;
+  }
+
+  // The path under which to create the SymFs.
+  string path = 1;
+
+  // The path(s) under which to scan for metadata files.
+  repeated string source_paths = 2;
+
+  // The filename pattern of metadata files. Note that if this pattern matches
+  // more than one file in a directory, all matched files will be used for that
+  // directory with regards to SymFs generation. Defaults to
+  // "^metadata.textproto$".
+  repeated string metadata_file_patterns = 3;
+
+  repeated GroupBy group_by = 4;
+}
