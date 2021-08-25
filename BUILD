@@ -31,3 +31,11 @@ py_proto_library(
     ":symfs_proto",
   ],
 )
+
+py_library(
+  name = "ext_lib",
+  srcs = ["ext_lib.py"],
+  deps = [
+    ":ext_py_proto",
+  ],
+)
