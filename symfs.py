@@ -125,3 +125,21 @@ class SymFs:
       self._compute_mapping()
 
     return self.paths_by_keys_by_group
+
+  def generate(self):
+    """Generates the SymFs."""
+    output_path = pathlib.Path(self.config.path)
+    if not output_path.exists():
+      output_path.mkdir(parents=True)
+      logging.info('Created path %s.', output_path)
+    for group_name, group in self.get_mapping().items():
+      (output_path / group_name).mkdir(exist_ok=True)
+      for group_key, group_items in group.items():
+        (output_path / group_name / group_key).mkdir(exist_ok=True)
+        for item in group_items:
+          item_path = output_path / group_name / group_key / item.name
+          if item_path.exists():
+            logging.warning('%s -> %s already exists; skipping %s.', item_path,
+                            item_path.resolve(), item)
+            continue
+          item_path.symlink_to(item, target_is_directory=True)
