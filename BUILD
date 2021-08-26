@@ -61,3 +61,13 @@ py_test(
     "@bazel//third_party/py/abseil",
   ],
 )
+
+py_test(
+  name = "ext_lib_test",
+  srcs = ["ext_lib_test.py"],
+  deps = [
+    ":ext_lib",
+    ":ext_py_proto",
+    "@bazel//third_party/py/abseil",
+  ],
+)
