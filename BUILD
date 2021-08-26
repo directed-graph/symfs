@@ -47,6 +47,7 @@ par_binary(
   deps = [
     ":ext_lib",
     ":symfs_py_proto",
+    "@abseil//absl/logging",
   ],
 )
 

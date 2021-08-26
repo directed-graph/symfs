@@ -4,6 +4,7 @@ import itertools
 import pathlib
 import re
 
+from absl import logging
 from google.protobuf import any_pb2
 from google.protobuf import message
 from google.protobuf import text_format
@@ -87,13 +88,17 @@ class SymFs:
       Tuples of directory and associated metadata for that directory.
     """
     for source_path in self.config.source_paths:
+      yielded = False
       for item in pathlib.Path(source_path).rglob('*'):
         if item.is_file() and any(
             re.match(pattern, item.name)
             for pattern in self.config.metadata_file_patterns):
           metadata = symfs_pb2.Metadata()
           text_format.Parse(item.read_text(), metadata)
+          yielded = True
           yield item.parent, metadata
+      if not yielded:
+        logging.warning('No metadata files found in %s.', source_path)
 
   def _compute_mapping(self) -> None:
     """Computes the mappings from group to group keys to paths."""
