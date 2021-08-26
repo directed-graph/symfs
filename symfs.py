@@ -4,6 +4,8 @@ import itertools
 import pathlib
 import re
 
+from absl import app
+from absl import flags
 from absl import logging
 from google.protobuf import any_pb2
 from google.protobuf import message
@@ -13,6 +15,15 @@ from google.protobuf.internal.containers import RepeatedScalarFieldContainer
 import ext_lib
 import symfs_pb2
 
+_CONFIG_FILE = flags.DEFINE_string('config_file', None,
+                                   'Textproto containing SymFs.Config proto.')
+
+_PATH = flags.DEFINE_string('path', None,
+                            'If set, overrides the SymFs.Config.path field.')
+
+_SOURCE_PATHS = flags.DEFINE_multi_string(
+    'source_paths', None,
+    'If set, overrides the SymFs.Config.source_paths field.')
 
 GroupToKeyToPathMapping = Mapping[str, Mapping[str, Set[pathlib.Path]]]
 
@@ -143,3 +154,27 @@ class SymFs:
                             item_path.resolve(), item)
             continue
           item_path.symlink_to(item, target_is_directory=True)
+
+
+def main(argv):
+  del argv
+
+  if not _CONFIG_FILE.value:
+    raise ValueError('Must provide a config.')
+
+  config = symfs_pb2.Config()
+  with open(_CONFIG_FILE.value) as stream:
+    text_format.Parse(stream.read(), config)
+
+  if _PATH.value:
+    config.path = _PATH.value
+
+  if _SOURCE_PATHS.value:
+    del config.source_paths[:]
+    config.source_paths.extend(_SOURCE_PATHS.value)
+
+  SymFs(config).generate()
+
+
+if __name__ == '__main__':
+  app.run(main)
