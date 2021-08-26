@@ -23,6 +23,7 @@ _EXCLUDE_MODULES = {
     'typing.Iterator',
     'typing.Optional',
 }
+SYMBOL_TABLE = None
 
 
 def _get_modules(
@@ -44,8 +45,34 @@ def _get_file_descriptor_protos(
     yield descriptor
 
 
-SYMBOL_TABLE = message_factory.GetMessages(list(_get_file_descriptor_protos()))
+def get_prototype(type_name: str,
+                  self_managed: bool = False) -> message.Message:
+  """Get prototype given the name.
 
+  We have a `self_managed` option, because the symbol database of the built
+  libraries are, in theory, private variables.
 
-def get_prototype(type_name: str) -> message.Message:
-  return SYMBOL_TABLE[type_name]
+  Args:
+    type_name: The fully qualified message name (not type_url).
+    self_managed: If set, we will locally generate the desired prototypes.
+
+  Raises:
+    KeyError: If we cannot find a prototype corresponding to the type_name.
+
+  Returns:
+    The prototype that can be used to construct proto messages.
+  """
+  if self_managed:
+    global SYMBOL_TABLE
+    if SYMBOL_TABLE is None:
+      SYMBOL_TABLE = message_factory.GetMessages(
+          list(_get_file_descriptor_protos()))
+    return SYMBOL_TABLE[type_name]
+
+  for module in _get_modules():
+    try:
+      return getattr(module, '_sym_db').GetSymbol(type_name)
+    except KeyError:
+      logging.warning('Did not find %s in %s.', type_name, module.__name__)
+
+  raise KeyError(f'Unable to find message {type_name}.')
