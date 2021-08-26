@@ -1,3 +1,5 @@
+from pathlib import PosixPath
+
 import unittest
 
 from absl.testing import parameterized
@@ -12,6 +14,7 @@ r = runfiles.Create()
 TEST_CONFIG_FILE = r.Rlocation('everchanging/test_data/config.textproto')
 TEST_MESSAGE_FILE = r.Rlocation('everchanging/test_data/test_message.textproto')
 TEST_METADATA_FILE = r.Rlocation('everchanging/test_data/metadata.textproto')
+TEST_DATA_DIR = r.Rlocation('everchanging/test_data')
 
 
 class SymFsTest(parameterized.TestCase):
@@ -53,6 +56,30 @@ class SymFsTest(parameterized.TestCase):
     self.assertEqual(
         set(symfs.generate_groups(message, 'rs', max_repeated_group)),
         expected_output)
+
+  def test_compute_mapping(self):
+    """Ensures mapping can be correctly computed; also tests scan_metadata."""
+    expected_output = {
+        'by_s': {
+            's_value': {PosixPath(TEST_DATA_DIR)},
+        },
+        'by_rs': {
+            'rs_value_0': {PosixPath(TEST_DATA_DIR)},
+            'rs_value_1': {PosixPath(TEST_DATA_DIR)},
+            'rs_value_0-rs_value_1': {PosixPath(TEST_DATA_DIR)}
+        },
+        'by_m': {
+            'v_value': {PosixPath(TEST_DATA_DIR)},
+        },
+    }
+
+    config = symfs_pb2.Config()
+    with open(TEST_CONFIG_FILE) as stream:
+      text_format.Parse(stream.read(), config)
+    config.source_paths[0] = config.source_paths[0].replace(
+        '{TEST_DATA_DIR}', TEST_DATA_DIR)
+
+    self.assertEqual(symfs.SymFs(config).get_mapping(), expected_output)
 
 
 if __name__ == '__main__':

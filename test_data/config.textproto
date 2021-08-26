@@ -3,8 +3,8 @@
 
 path: "/test/output/path"
 
-# For testing purposes, we will replace {DATA_PATH} with the path to data.
-source_paths: "{DATA_PATH}/test_data"
+# For testing purposes, we will replace {TEST_DATA_DIR} with the path to data.
+source_paths: "{TEST_DATA_DIR}"
 
 group_by {
   name: "by_s"
