@@ -97,17 +97,14 @@ class SymFsTest(parameterized.TestCase):
           self.assertIn('No metadata files found in does_not_exist.',
                         logs.output[0])
 
-      # Check group keys.
+      mapping = {}
       for group_path in Path(output_path).glob('*'):
-        # Check group name is generated.
-        self.assertIn(group_path.name, EXPECTED_MAPPING)
+        mapping[group_path.name] = {}
         for group_key_path in group_path.glob('*'):
-          # Check group key is generated
-          self.assertIn(group_key_path.name, EXPECTED_MAPPING[group_path.name])
-          # Check all links are correct.
-          self.assertItemsEqual(
-              map(Path.resolve, group_key_path.glob('*')),
-              EXPECTED_MAPPING[group_path.name][group_key_path.name])
+          mapping[group_path.name][group_key_path.name] = set(
+              map(Path.resolve, group_key_path.glob('*')))
+
+      self.assertDictEqual(mapping, EXPECTED_MAPPING)
 
 
 if __name__ == '__main__':
