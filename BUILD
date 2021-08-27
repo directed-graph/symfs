@@ -61,6 +61,7 @@ py_test(
     ":symfs",
     ":symfs_py_proto",
     "@abseil//absl/testing:absltest",
+    "@abseil//absl/testing:flagsaver",
     "@abseil//absl/testing:parameterized",
     "@rules_python//python/runfiles",
   ],
