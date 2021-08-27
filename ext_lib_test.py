@@ -1,7 +1,6 @@
-import unittest
-
-from google.protobuf import descriptor_pb2
+from absl.testing import absltest
 from absl.testing import parameterized
+from google.protobuf import descriptor_pb2
 
 import ext_lib
 import ext_pb2
@@ -31,4 +30,4 @@ class ExtLibTest(parameterized.TestCase):
 
 
 if __name__ == '__main__':
-  unittest.main()
+  absltest.main()

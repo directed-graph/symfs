@@ -60,8 +60,9 @@ py_test(
   deps = [
     ":symfs",
     ":symfs_py_proto",
-    "@rules_python//python/runfiles",
+    "@abseil//absl/testing:absltest",
     "@abseil//absl/testing:parameterized",
+    "@rules_python//python/runfiles",
   ],
 )
 
@@ -71,6 +72,7 @@ py_test(
   deps = [
     ":ext_lib",
     ":ext_py_proto",
+    "@abseil//absl/testing:absltest",
     "@abseil//absl/testing:parameterized",
   ],
 )

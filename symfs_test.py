@@ -1,7 +1,6 @@
 from pathlib import PosixPath
 
-import unittest
-
+from absl.testing import absltest
 from absl.testing import parameterized
 from google.protobuf import text_format
 from rules_python.python.runfiles import runfiles
@@ -83,4 +82,4 @@ class SymFsTest(parameterized.TestCase):
 
 
 if __name__ == '__main__':
-  unittest.main()
+  absltest.main()
