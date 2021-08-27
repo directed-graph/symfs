@@ -1,3 +1,4 @@
+from pprint import pformat
 from typing import Any, Iterable, Iterator, Mapping, Set, Tuple
 
 import itertools
@@ -17,6 +18,9 @@ import symfs_pb2
 
 _CONFIG_FILE = flags.DEFINE_string('config_file', None,
                                    'Textproto containing SymFs.Config proto.')
+
+_DRY_RUN = flags.DEFINE_bool('dry_run', False,
+                             'If set, only log during generate.')
 
 _PATH = flags.DEFINE_string('path', None,
                             'If set, overrides the SymFs.Config.path field.')
@@ -137,23 +141,28 @@ class SymFs:
 
     return self.paths_by_keys_by_group
 
-  def generate(self):
+  def generate(self, dry_run: bool = False):
     """Generates the SymFs."""
     output_path = pathlib.Path(self.config.path)
     if not output_path.exists():
-      output_path.mkdir(parents=True)
+      if not dry_run:
+        output_path.mkdir(parents=True)
       logging.info('Created path %s.', output_path)
     for group_name, group in self.get_mapping().items():
-      (output_path / group_name).mkdir(exist_ok=True)
+      if not dry_run:
+        (output_path / group_name).mkdir(exist_ok=True)
       for group_key, group_items in group.items():
-        (output_path / group_name / group_key).mkdir(exist_ok=True)
+        if not dry_run:
+          (output_path / group_name / group_key).mkdir(exist_ok=True)
         for item in group_items:
           item_path = output_path / group_name / group_key / item.name
           if item_path.exists():
             logging.warning('%s -> %s already exists; skipping %s.', item_path,
                             item_path.resolve(), item)
             continue
-          item_path.symlink_to(item, target_is_directory=True)
+          if not dry_run:
+            item_path.symlink_to(item, target_is_directory=True)
+          logging.info('%s -> %s', item_path, item)
 
 
 def main(argv):
@@ -173,7 +182,9 @@ def main(argv):
     del config.source_paths[:]
     config.source_paths.extend(_SOURCE_PATHS.value)
 
-  SymFs(config).generate()
+  symfs = SymFs(config)
+  logging.debug('\n%s', pformat(symfs.get_mapping()))
+  symfs.generate(dry_run=_DRY_RUN.value)
 
 
 if __name__ == '__main__':

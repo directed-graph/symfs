@@ -106,6 +106,17 @@ class SymFsTest(parameterized.TestCase):
 
       self.assertDictEqual(mapping, EXPECTED_MAPPING)
 
+  def test_dry_run(self):
+    """Ensure dry_run does not create anything."""
+    with tempfile.TemporaryDirectory() as output_path:
+      with flagsaver.flagsaver(
+          (symfs._CONFIG_FILE, TEST_CONFIG_FILE),
+          (symfs._SOURCE_PATHS, [TEST_DATA_DIR, 'does_not_exist']),
+          (symfs._PATH, output_path), (symfs._DRY_RUN, True)):
+        symfs.main(None)
+
+      self.assertEmpty(set(Path(output_path).rglob('*')))
+
 
 if __name__ == '__main__':
   absltest.main()
