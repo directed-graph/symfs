@@ -10,13 +10,17 @@ class ExtLibTest(parameterized.TestCase):
   """Tests for ext_lib."""
 
   @parameterized.parameters(
-      ('everchanging.symfs.ext.TestMessage', ext_pb2.TestMessage),)
+      ('everchanging.symfs.ext.TestMessage', ext_pb2.TestMessage),
+      ('everchanging.symfs.ext.Media', ext_pb2.Media),
+  )
   def test_get_prototype(self, type_name, expected_prototype):
     """Ensures we get the correct prototype."""
     self.assertEqual(ext_lib.get_prototype(type_name), expected_prototype)
 
   @parameterized.parameters(
-      ('everchanging.symfs.ext.TestMessage', ext_pb2.TestMessage),)
+      ('everchanging.symfs.ext.TestMessage', ext_pb2.TestMessage),
+      ('everchanging.symfs.ext.Media', ext_pb2.Media),
+  )
   def test_get_prototype_self_managed(self, type_name, expected_prototype):
     """Ensures we get the correct prototype for self_managed case."""
     descriptor = descriptor_pb2.DescriptorProto()

@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package everchanging.symfs.ext;
 
+// For testing purposes.
 // Next tag: 5
 message TestMessage {
   // Next tag: 2
@@ -12,4 +13,32 @@ message TestMessage {
   repeated string rs = 2;
   InnerTestMessage m = 3;
   repeated InnerTestMessage rm = 4;
+}
+
+// A generic message for media.
+// Next tag: 9
+message Media {
+  // A unique identifier to identify the media.
+  string id = 1;
+
+  // The title of the media.
+  string title = 2;
+
+  // The casts in the media.
+  repeated string casts = 3;
+
+  // The studio that made the media.
+  string studio = 4;
+
+  // When the media was released.
+  string release = 5;
+
+  // Tags for the media.
+  repeated string tags = 6;
+
+  // The genre for the media.
+  repeated string genre = 7;
+
+  // The sources from which this media was obtained.
+  repeated string sources = 8;
 }
