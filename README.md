@@ -5,6 +5,24 @@ metadata, SymFS will generate a set of symlinks to those directories, grouping
 them based on a set of criteria against the metadata of those directories.
 
 
+## Automating
+
+There are various ways to automate. In this section, we will go over a small
+example on automating with systemd. We have provided
+[symfs.service](./example/systemd/symfs.service) and
+[symfs.timer](./example/systemd/symfs.timer) that you can build on top of to
+automate.  You can place these files anywhere in the [systemd search
+path](https://www.freedesktop.org/software/systemd/man/systemd.unit.html). One
+example is `/usr/local/lib/systemd/system/`.
+
+If you don't have any major customization needed, the `symfs.timer` can be
+copied without modification (it will automatically trigger SymFs to run once a
+day). For the given `symfs.service`, you need to update `Environment=` and
+`User=` to something that is appropriate for you (change the `REPLACE_ME`
+part). Then, simply write your `everchanging.symfs.Config` configuration
+textproto to where you set it in `Environment=` and you are good to go!
+
+
 ## How to Extend
 
 If you want to use a custom proto for your metadata, you can add it directly to

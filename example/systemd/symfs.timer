@@ -1,0 +1,9 @@
+[Unit]
+Description=Periodic run of SymFs
+
+[Timer]
+Persistent=true
+OnCalendar=daily
+
+[Install]
+WantedBy=timers.target
