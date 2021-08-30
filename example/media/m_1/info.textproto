@@ -1,0 +1,9 @@
+# proto-file: protos/symfs.proto
+# proto-name: everchanging.symfs.Metadata
+
+data {
+  [type.googleapis.com/everchanging.symfs.ext.Media] {
+    casts: "Cast_0"
+    casts: "Cast_2"
+  }
+}

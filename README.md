@@ -5,6 +5,35 @@ metadata, SymFS will generate a set of symlinks to those directories, grouping
 them based on a set of criteria against the metadata of those directories.
 
 
+## Example Configuration
+
+We have an example [media collection](./example/media) that contains two media:
+`m_0` and `m_1`. Each media has multiple casts, and some cast appears in
+multiple media. What we want is a view on top of this collection that groups
+the media by the cast. In other words, we want to browse by the cast.
+
+To do this, we write a metadata file for each media containing the cast
+members<sup>1</sup>. Then, we write the [SymFs
+configuration](./example/config.textproto) to group by the `casts` field. We
+then run with the following:
+
+```
+symfs.par --config_file example/config.textproto
+```
+
+Note that for the purposes of this example, we are using relative paths in the
+configuration; this is generally not supported and may cause broken links.
+However, the purpose of this example is to demonstrate setup and usage, so we
+will ignore that for now. After running the command, the
+[views](./example/views) will be generated. See the next section on how you can
+automate this.
+
+<sup>1</sup> Admittedly, this can be tedious. However, if you have a large
+collection of items to which using SymFs can be beneficial, you'd likely want
+to have some sort of metadata for your collection regardless. This is where the
+extensible proto concept can come in handy.
+
+
 ## Automating
 
 There are various ways to automate. In this section, we will go over a small
