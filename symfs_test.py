@@ -89,12 +89,12 @@ class SymFsTest(parameterized.TestCase):
     with tempfile.TemporaryDirectory() as output_path:
       with flagsaver.flagsaver(
           (symfs._CONFIG_FILE, TEST_CONFIG_FILE),
-          (symfs._SOURCE_PATHS, [TEST_DATA_DIR, 'does_not_exist']),
+          (symfs._SOURCE_PATHS, [TEST_DATA_DIR, '/does/not/exist']),
           (symfs._PATH, output_path)):
         with self.assertLogs(level='WARNING') as logs:
           symfs.main(None)
           self.assertLen(logs.output, 1)
-          self.assertIn('No metadata files found in does_not_exist.',
+          self.assertIn('No metadata files found in /does/not/exist.',
                         logs.output[0])
 
       mapping = {}
@@ -107,15 +107,29 @@ class SymFsTest(parameterized.TestCase):
       self.assertDictEqual(mapping, EXPECTED_MAPPING)
 
   def test_dry_run(self):
-    """Ensure dry_run does not create anything."""
+    """Ensures dry_run does not create anything."""
     with tempfile.TemporaryDirectory() as output_path:
       with flagsaver.flagsaver(
           (symfs._CONFIG_FILE, TEST_CONFIG_FILE),
-          (symfs._SOURCE_PATHS, [TEST_DATA_DIR, 'does_not_exist']),
+          (symfs._SOURCE_PATHS, [TEST_DATA_DIR, '/does/not/exist']),
           (symfs._PATH, output_path), (symfs._DRY_RUN, True)):
         symfs.main(None)
 
       self.assertEmpty(set(Path(output_path).rglob('*')))
+
+  @parameterized.parameters(
+      ('/absolute/path', './relative/path'),
+      ('./relative/path', '/absolute/path'),
+  )
+  def test_relative_path_warning(self, path, source_path):
+    """Ensures warning is sent for relative paths."""
+    config = symfs_pb2.Config(path=path, source_paths=(source_path,))
+    with self.assertLogs(level='WARNING') as logs:
+      symfs.SymFs(config)
+      self.assertLen(logs.output, 1)
+      self.assertIn(
+          './relative/path is not an absolute path; may cause broken links!',
+          logs.output[0])
 
 
 if __name__ == '__main__':

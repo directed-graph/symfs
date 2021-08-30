@@ -90,6 +90,11 @@ class SymFs:
     if not self.config.metadata_file_patterns:
       self.config.metadata_file_patterns.append(r'^metadata\.textproto')
 
+    for path in itertools.chain((self.config.path,), self.config.source_paths):
+      if not pathlib.Path(path).is_absolute():
+        logging.warning('%s is not an absolute path; may cause broken links!',
+                        path)
+
     self.paths_by_keys_by_group: GroupToKeyToPathMapping = {}
 
   def scan_metadata(self) -> Iterator[Tuple[pathlib.Path, symfs_pb2.Metadata]]:

@@ -49,10 +49,10 @@ message Config {
     int32 max_repeated_group = 3;
   }
 
-  // The path under which to create the SymFs.
+  // The path under which to create the SymFs. Must be absolute path.
   string path = 1;
 
-  // The path(s) under which to scan for metadata files.
+  // The path(s) under which to scan for metadata files. Must be absolute path.
   repeated string source_paths = 2;
 
   // The filename pattern of metadata files. Note that if this pattern matches
