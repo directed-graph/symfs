@@ -44,6 +44,7 @@ py_library(
 par_binary(
   name = "symfs",
   srcs = ["symfs.py"],
+  python_version = "PY3",
   deps = [
     ":ext_lib",
     ":symfs_py_proto",
@@ -56,6 +57,7 @@ par_binary(
 py_test(
   name = "symfs_test",
   srcs = ["symfs_test.py"],
+  python_version = "PY3",
   data = glob(["test_data/*"]),
   deps = [
     ":symfs",
@@ -70,6 +72,7 @@ py_test(
 py_test(
   name = "ext_lib_test",
   srcs = ["ext_lib_test.py"],
+  python_version = "PY3",
   deps = [
     ":ext_lib",
     ":ext_py_proto",
