@@ -1,0 +1,47 @@
+name: Release
+
+on:
+  schedule:
+    - cron: '0 0 1 * *'
+
+  workflow_dispatch:
+
+jobs:
+  metadata:
+    runs-on: ubuntu-latest
+    outputs:
+      should_release: ${{ steps.metadata.outputs.should_release }}
+      release_name: ${{ steps.metadata.outputs.release_name }}
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Generate Release Metadata
+        id: metadata
+        run: |
+          echo "::set-output name=release_name::symfs_$(date +'%Y%m%d')"
+          # If release is auto and no changes within last month, then skip.
+          if [[ '${{ github.event_name }}' == 'schedule' && \
+                -z "$(git rev-list --after='1 month' '${{ github.sha }}')" ]]; then
+            echo '::set-output name=should_release::no'
+          else
+            echo '::set-output name=should_release::yes'
+          fi
+
+  release:
+    needs: metadata
+    runs-on: ubuntu-latest
+    if: ${{ needs.metadata.outputs.should_release == 'yes' }}
+    steps:
+      - uses: bazelbuild/setup-bazelisk@v1
+
+      - uses: actions/checkout@v2
+
+      - run: bazel build :symfs.par
+
+      - run: bazel test --test_output=all :symfs_test :ext_lib_test
+
+      - uses: ncipollo/release-action@v1
+        with:
+          artifacts: 'bazel-bin/symfs.par'
+          tag: ${{ needs.metadata.outputs.release_name }}
+          token: ${{ secrets.GITHUB_TOKEN }}
