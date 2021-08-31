@@ -1,0 +1,7 @@
+*
+!BUILD
+!derived_metadata/*.py
+!protos/*.proto
+!*.py
+!test_data
+!WORKSPACE
