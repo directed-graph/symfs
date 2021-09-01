@@ -1,4 +1,8 @@
 
+[![Integrate](https://github.com/directed-graph/symfs/actions/workflows/integrate.yaml/badge.svg)](https://github.com/directed-graph/symfs/actions/workflows/integrate.yaml)
+[![Release](https://github.com/directed-graph/symfs/actions/workflows/release.yaml/badge.svg)](https://github.com/directed-graph/symfs/actions/workflows/release.yaml)
+
+
 SymFS is a program that generates a view to a collection of directories in the
 form of symlinks. Specifically, given a set of directories and associated
 metadata, SymFS will generate a set of symlinks to those directories, grouping
