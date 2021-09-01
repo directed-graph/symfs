@@ -61,9 +61,8 @@ to the `ext_proto` `BUILD` rule. This can be done in two steps:
 1. Add the proto definition under `protos/`.
 2. Add file to the `srcs` in `BUILD` for `ext_proto`.
 
-In either case, we also recommend updating the test cases in `ext_lib_test.py`.
-See commit `c78f3407962f2d1664ce070cbcde1fc3659a0b9a` for an example. Feel free
-to send a pull request for this addition!
+In either case, we also recommend updating the test case in `ext_lib_test.py`
+with the new message(s). Feel free to send a pull request for this addition!
 
 An alternative and more "decoupled" approach is to add the proto as a separate
 library. This can also be done without changing much code, in three steps:
