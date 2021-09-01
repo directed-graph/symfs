@@ -3,10 +3,28 @@
 [![Release](https://github.com/directed-graph/symfs/actions/workflows/release.yaml/badge.svg)](https://github.com/directed-graph/symfs/actions/workflows/release.yaml)
 
 
-SymFS is a program that generates a view to a collection of directories in the
-form of symlinks. Specifically, given a set of directories and associated
-metadata, SymFS will generate a set of symlinks to those directories, grouping
-them based on a set of criteria against the metadata of those directories.
+SymFs is a filesystem- and application- agnostic program that generates a
+collection of views to a collection of directories with associated metadata in the
+form of symlinks, grouping them based on a set of criteria against the metadata
+in those directories.
+
+Here, "filesystem" means that whatever filesystem you are using should support
+SymFs, as these are just simple directories and symlinks. Similarly,
+"application" means that whatever downstream application you use to view SymFs
+should work just fine (e.g. WebDAV, SMB, etc.).
+
+
+## Should I use it?
+
+SymFs may be a good fit for you if most of the following are true:
+
+- You have many directories, each of which has some metadata you manage.
+- You want the metadata to be extensible and self-defined.
+- You want to create one or more views on top of those directories that group
+  the directories based on one or more fields in the metadata.
+- You want to browse the resultant views on standard applications such as
+  WebDAV, SMB, etc.
+- You want this entire process to be automatable.
 
 
 ## Example Configuration
