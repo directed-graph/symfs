@@ -79,8 +79,11 @@ class SymFsTest(parameterized.TestCase):
     config = symfs_pb2.Config()
     with open(TEST_CONFIG_FILE) as stream:
       text_format.Parse(stream.read(), config)
-    config.source_paths[0] = config.source_paths[0].replace(
-        '{TEST_DATA_DIR}', TEST_DATA_DIR)
+
+    config.source_paths.append(TEST_DATA_DIR)
+    group_by = config.group_by.add()
+    group_by.name = 'by_m'
+    group_by.field = 'm.value'
 
     self.assertEqual(symfs.SymFs(config).get_mapping(), EXPECTED_MAPPING)
 
@@ -96,9 +99,9 @@ class SymFsTest(parameterized.TestCase):
 
     with tempfile.TemporaryDirectory() as output_path:
       with flagsaver.flagsaver(
-          (symfs._CONFIG_FILE, TEST_CONFIG_FILE),
-          (symfs._SOURCE_PATHS, [TEST_DATA_DIR, '/does/not/exist']),
-          (symfs._PATH, output_path)):
+          (symfs._APPEND, True), (symfs._CONFIG_FILE, TEST_CONFIG_FILE),
+          (symfs._GROUP_BY, ['by_m:m.value']), (symfs._PATH, output_path),
+          (symfs._SOURCE_PATHS, [TEST_DATA_DIR, '/does/not/exist'])):
         with self.assertLogs(level='WARNING') as logs:
           symfs.main(None)
           self.assertLen(logs.output, len(expected_warnings))

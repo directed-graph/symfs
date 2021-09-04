@@ -16,11 +16,18 @@ from google.protobuf.internal.containers import RepeatedScalarFieldContainer
 import ext_lib
 import symfs_pb2
 
+_APPEND = flags.DEFINE_bool(
+    'append', False, 'If set, items specified on the commandline will be '
+    'appended to repeatable fields in the config instead of replaced.')
+
 _CONFIG_FILE = flags.DEFINE_string('config_file', None,
                                    'Textproto containing SymFs.Config proto.')
 
 _DRY_RUN = flags.DEFINE_bool('dry_run', False,
                              'If set, only log during generate.')
+
+_GROUP_BY = flags.DEFINE_multi_string(
+    'group_by', None, 'Specify a GroupBy in the form of <name>:<field>.')
 
 _PATH = flags.DEFINE_string('path', None,
                             'If set, overrides the SymFs.Config.path field.')
@@ -178,18 +185,29 @@ class SymFs:
 def main(argv):
   del argv
 
-  if not _CONFIG_FILE.value:
-    raise ValueError('Must provide a config.')
+  if not _CONFIG_FILE.value and not all(
+      (_PATH.value, _SOURCE_PATHS.value, _GROUP_BY.value)):
+    raise ValueError('Must provide a config file or flags to build config.')
 
   config = symfs_pb2.Config()
-  with open(_CONFIG_FILE.value) as stream:
-    text_format.Parse(stream.read(), config)
+
+  if _CONFIG_FILE.value:
+    with open(_CONFIG_FILE.value) as stream:
+      text_format.Parse(stream.read(), config)
+
+  if _GROUP_BY.value:
+    if not _APPEND.value:
+      del config.group_by[:]
+    for group_by in _GROUP_BY.value:
+      name, field = group_by.split(':')
+      config.group_by.append(symfs_pb2.Config.GroupBy(name=name, field=field))
 
   if _PATH.value:
     config.path = _PATH.value
 
   if _SOURCE_PATHS.value:
-    del config.source_paths[:]
+    if not _APPEND.value:
+      del config.source_paths[:]
     config.source_paths.extend(_SOURCE_PATHS.value)
 
   symfs = SymFs(config)

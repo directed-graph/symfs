@@ -3,9 +3,6 @@
 
 path: "/test/output/path"
 
-# For testing purposes, we will replace {TEST_DATA_DIR} with the path to data.
-source_paths: "{TEST_DATA_DIR}"
-
 metadata_file_patterns: "^metadata\.(textproto|pb\.txt)$"
 
 group_by {
@@ -19,13 +16,10 @@ group_by {
   max_repeated_group: 2
 }
 
-group_by {
-  name: "by_m"
-  field: "m.value"
-}
-
-# Cannot support intermediary repeated fields.
+# The expected output in the unit tests also expects the following to specified
+# (via flag, manually add, etc.).
+#
 # group_by {
-#   name: "by_rm"
-#   field: "rm.value"
+#   name: "by_m"
+#   field: "m.value"
 # }
