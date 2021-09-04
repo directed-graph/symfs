@@ -89,18 +89,22 @@ class SymFsTest(parameterized.TestCase):
 
   def test_generate_from_main(self):
     """E2E test to ensure SymFs is correctly generated."""
-    unable_to_extract = 'Unable to extract field {} from message type {}'
+    not_exist = 'Field {} does not exist in message type {}; skipping'
+    not_scalar = 'Field {} in message type {} is not scalar; skipping'
     expected_warnings = [
-        unable_to_extract.format('s', 'everchanging.symfs.ext.Media'),
-        unable_to_extract.format('rs', 'everchanging.symfs.ext.Media'),
-        unable_to_extract.format('m.value', 'everchanging.symfs.ext.Media'),
+        not_exist.format('s', 'everchanging.symfs.ext.Media'),
+        not_exist.format('rs', 'everchanging.symfs.ext.Media'),
+        not_exist.format('m.value', 'everchanging.symfs.ext.Media'),
+        not_exist.format('m', 'everchanging.symfs.ext.Media'),
+        not_scalar.format('m', 'everchanging.symfs.ext.TestMessage'),
         'No metadata files found in /does/not/exist.',
     ]
 
     with tempfile.TemporaryDirectory() as output_path:
       with flagsaver.flagsaver(
           (symfs._APPEND, True), (symfs._CONFIG_FILE, TEST_CONFIG_FILE),
-          (symfs._GROUP_BY, ['by_m:m.value']), (symfs._PATH, output_path),
+          (symfs._GROUP_BY, ['by_m:m.value', 'by_m:m']),
+          (symfs._PATH, output_path),
           (symfs._SOURCE_PATHS, [TEST_DATA_DIR, '/does/not/exist'])):
         with self.assertLogs(level='WARNING') as logs:
           symfs.main(None)
