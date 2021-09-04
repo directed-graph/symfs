@@ -131,13 +131,18 @@ class SymFs:
 
         message = ext_lib.get_prototype(metadata.data.TypeName())()
         metadata.data.Unpack(message)
-        for group in generate_groups(message, group_by.field,
-                                     group_by.max_repeated_group):
-          group_key = '-'.join(sorted(group))
-          try:
-            self.paths_by_keys_by_group[group_by.name][group_key].add(path)
-          except KeyError:
-            self.paths_by_keys_by_group[group_by.name][group_key] = {path}
+        try:
+          for group in generate_groups(message, group_by.field,
+                                       group_by.max_repeated_group):
+            group_key = '-'.join(sorted(group))
+            try:
+              self.paths_by_keys_by_group[group_by.name][group_key].add(path)
+            except KeyError:
+              self.paths_by_keys_by_group[group_by.name][group_key] = {path}
+        except AttributeError:
+          logging.warning(
+              'Unable to extract field %s from message type %s in %s; skipping.',
+              group_by.field, metadata.data.TypeName(), path)
 
   def get_mapping(self) -> GroupToKeyToPathMapping:
     """Returns the mappings from group to group keys to paths."""

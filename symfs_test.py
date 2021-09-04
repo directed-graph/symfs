@@ -86,6 +86,14 @@ class SymFsTest(parameterized.TestCase):
 
   def test_generate_from_main(self):
     """E2E test to ensure SymFs is correctly generated."""
+    unable_to_extract = 'Unable to extract field {} from message type {}'
+    expected_warnings = [
+        unable_to_extract.format('s', 'everchanging.symfs.ext.Media'),
+        unable_to_extract.format('rs', 'everchanging.symfs.ext.Media'),
+        unable_to_extract.format('m.value', 'everchanging.symfs.ext.Media'),
+        'No metadata files found in /does/not/exist.',
+    ]
+
     with tempfile.TemporaryDirectory() as output_path:
       with flagsaver.flagsaver(
           (symfs._CONFIG_FILE, TEST_CONFIG_FILE),
@@ -93,9 +101,9 @@ class SymFsTest(parameterized.TestCase):
           (symfs._PATH, output_path)):
         with self.assertLogs(level='WARNING') as logs:
           symfs.main(None)
-          self.assertLen(logs.output, 1)
-          self.assertIn('No metadata files found in /does/not/exist.',
-                        logs.output[0])
+          self.assertLen(logs.output, len(expected_warnings))
+          for actual, regex in zip(logs.output, expected_warnings):
+            self.assertRegex(actual, regex)
 
       mapping = {}
       for group_path in Path(output_path).glob('*'):

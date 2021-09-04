@@ -6,6 +6,8 @@ path: "/test/output/path"
 # For testing purposes, we will replace {TEST_DATA_DIR} with the path to data.
 source_paths: "{TEST_DATA_DIR}"
 
+metadata_file_patterns: "^metadata\.(textproto|pb\.txt)$"
+
 group_by {
   name: "by_s"
   field: "s"
