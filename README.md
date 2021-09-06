@@ -90,9 +90,10 @@ An alternative and more "decoupled" approach is to add the proto as a separate
 library. This can also be done without changing much code, in three steps:
 
 1. Add the proto definition under `protos/` as above.
-2. Add a `proto_library` and a `py_proto_library` in `BUILD` for it.
-3. Add the `py_proto_library` as a dependency in `ext_lib` and import it in
-   `ext_lib.py`.
+2. Add a `proto_library` and a `py_proto_library` in `BUILD` for it; make the
+  `py_proto_library` a dependency in `ext_lib`.
+3. Import the `py_proto_library` in `ext_lib.py` and add it to
+   `_EXT_PROTO_MODULES`.
 
 The alternative approach may be good if you plan to keep your custom proto
 private (i.e. a parallel branch).
