@@ -17,7 +17,7 @@ message Metadata {
 // directory under which is a set of symlinks to other directories; what
 // symlinks are created and which directories they link to are defined in this
 // configuration and influenced by the Metadata of the underlying directories.
-// Next tag: 4
+// Next tag: 6
 message Config {
   // Next tag: 3
   message GroupBy {
@@ -53,17 +53,33 @@ message Config {
     int32 max_repeated_group = 3;
   }
 
+  // Next tag: 2
+  message MetadataFiles {
+    // The filename pattern of metadata files. Note that if this pattern matches
+    // more than one file in a directory, all matched files will be used for that
+    // directory with regards to SymFs generation. Defaults to
+    // "^metadata.textproto$".
+    repeated string patterns = 1;
+  }
+
   // The path under which to create the SymFs. Must be absolute path.
   string path = 1;
 
-  // The path(s) under which to scan for metadata files. Must be absolute path.
+  // The path(s) under which to scan for files. Must be absolute path.
   repeated string source_paths = 2;
 
-  // The filename pattern of metadata files. Note that if this pattern matches
-  // more than one file in a directory, all matched files will be used for that
-  // directory with regards to SymFs generation. Defaults to
-  // "^metadata.textproto$".
-  repeated string metadata_file_patterns = 3;
+  // Deprecated; see `metadata_files`.
+  repeated string metadata_file_patterns = 3 [deprecated = true];
 
+  // Defines which field(s) of the metadata the grouping(s) are done.
   repeated GroupBy group_by = 4;
+
+  // Determines how metadata information is specified for view grouping.
+  // Defaults to `metadata_files` if not specified.
+  oneof metadata {
+    // A metadata file is specified on a per-directory basis. Not all
+    // directories need to have a metadata file, but only directories with a
+    // metadata file will be included in view groupings.
+    MetadataFiles metadata_files = 5;
+  }
 }

@@ -3,7 +3,9 @@
 
 path: "/test/output/path"
 
-metadata_file_patterns: "^metadata\.(textproto|pb\.txt)$"
+metadata_files {
+  patterns: "^metadata\.(textproto|pb\.txt)$"
+}
 
 group_by {
   name: "by_s"

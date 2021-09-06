@@ -152,8 +152,15 @@ class SymFs:
     """Initializes the SymFs object and set defaults."""
     self.config = config
 
-    if not self.config.metadata_file_patterns:
-      self.config.metadata_file_patterns.append(r'^metadata\.textproto')
+    if self.config.metadata_file_patterns:
+      logging.warning('Config.metadata_file_patterns is deprecated; '
+                      'copying to Config.metadata_files.')
+      self.config.metadata_files.patterns.extend(
+          self.config.metadata_file_patterns)
+      del self.config.metadata_file_patterns[:]
+
+    if self.config.WhichOneof('metadata') is None:
+      self.config.metadata_files.patterns.append(r'^metadata\.textproto$')
 
     for path in itertools.chain((self.config.path,), self.config.source_paths):
       if not pathlib.Path(path).is_absolute():
@@ -167,7 +174,7 @@ class SymFs:
 
     Scans the `source_paths` given in the `Config.source_paths` for directories
     that contain `Metadata` files. The `Metadata` files are identified by the
-    `Config.metadata_file_patterns`.
+    `Config.metadata_files.patterns`.
 
     Yields:
       Tuples of directory and associated metadata for that directory.
@@ -177,7 +184,7 @@ class SymFs:
       for item in pathlib.Path(source_path).rglob('*'):
         if item.is_file() and any(
             re.match(pattern, item.name)
-            for pattern in self.config.metadata_file_patterns):
+            for pattern in self.config.metadata_files.patterns):
           metadata = symfs_pb2.Metadata()
           text_format.Parse(item.read_text(), metadata)
           yielded = True

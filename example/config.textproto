@@ -6,7 +6,9 @@
 path: "./example/views"
 source_paths: "./example/media"
 
-metadata_file_patterns: "^(info|metadata)\.(textproto|pb\.txt)$"
+metadata_files {
+  patterns: "^(info|metadata)\.(textproto|pb\.txt)$"
+}
 
 group_by {
   name: "cast"
