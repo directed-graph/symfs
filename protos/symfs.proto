@@ -17,7 +17,7 @@ message Metadata {
 // directory under which is a set of symlinks to other directories; what
 // symlinks are created and which directories they link to are defined in this
 // configuration and influenced by the Metadata of the underlying directories.
-// Next tag: 6
+// Next tag: 7
 message Config {
   // Next tag: 3
   message GroupBy {
@@ -62,6 +62,36 @@ message Config {
     repeated string patterns = 1;
   }
 
+  // Next tag: 4
+  message DerivedMetadata {
+    // Next tag: 3
+    enum ItemMode {
+      // Attempt to derive metadata for all items.
+      ALL = 0;
+
+      // Attempt to derive metadata only for files. Includes symlinks that
+      // point to files.
+      FILES = 1;
+
+      // Attempt to derive metadata only for directories. Includes symlinks
+      // that point to directories.
+      DIRECTORIES = 2;
+    }
+
+    // Which items to derive metadata for.
+    ItemMode item_mode = 1;
+
+    // The fully-qualified custom function name (including module(s)). The
+    // function should take a pathlib.Path object and an Any proto. The output
+    // should be a Metadata proto. This function should be made accessible in
+    // `ext_lib.py`. The simplest way is to add a new file or modify an
+    // existing file in the `derived_metadata/` directory.
+    string function_name = 2;
+
+    // Parameters given to the custom function.
+    google.protobuf.Any parameters = 3;
+  }
+
   // The path under which to create the SymFs. Must be absolute path.
   string path = 1;
 
@@ -81,5 +111,10 @@ message Config {
     // directories need to have a metadata file, but only directories with a
     // metadata file will be included in view groupings.
     MetadataFiles metadata_files = 5;
+
+    // A Metadata proto is generated on a per-item basis. The generation is
+    // done with a custom function the user will define and make accessible in
+    // `ext_lib.py`. Do not use; not implemented yet.
+    DerivedMetadata derived_metadata = 6;
   }
 }

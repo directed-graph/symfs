@@ -169,12 +169,14 @@ class SymFs:
 
     self.paths_by_keys_by_group: GroupToKeyToPathMapping = {}
 
-  def scan_metadata(self) -> Iterator[Tuple[pathlib.Path, symfs_pb2.Metadata]]:
+  def _scan_metadata_files(
+      self) -> Iterator[Tuple[pathlib.Path, symfs_pb2.Metadata]]:
     """Yields tuples of directory and associated metadata based on the config.
 
     Scans the `source_paths` given in the `Config.source_paths` for directories
     that contain `Metadata` files. The `Metadata` files are identified by the
-    `Config.metadata_files.patterns`.
+    `Config.metadata_files.patterns`. Assumes `Config.metadata` is set to
+    `metadata_files`.
 
     Yields:
       Tuples of directory and associated metadata for that directory.
@@ -191,6 +193,40 @@ class SymFs:
           yield item.parent, metadata
       if not yielded:
         logging.warning('No metadata files found in %s.', source_path)
+
+  def _derive_items_metadata(
+      self) -> Iterator[Tuple[pathlib.Path, symfs_pb2.Metadata]]:
+    """Yields tuples of items and derived metadata based on config.
+
+    As documented in `symfs.proto` for `Config.derived_metadata`, a custom
+    function must be specified. Depending on `item_mode`, the file/directory
+    will be passed to the custom function, along with the custom `parameters`
+    proto, if provided.
+
+    The expected return value will be the derived metadata, which this method
+    will yield in addition to the item path itself.
+
+    Yields:
+      Tuples of items and associated metadata for that item.
+    """
+    raise NotImplementedError('Derived Metadata not implemented yet.')
+
+  def scan_metadata(self) -> Iterator[Tuple[pathlib.Path, symfs_pb2.Metadata]]:
+    """Yields tuples of items and associated metadata based on Config.metadata.
+
+    The item can be a directory or a file, depending on how Config.metadata is
+    written.
+
+    Yields:
+      Tuples of items and associated metadata proto for that item.
+    """
+    which_metadata = self.config.WhichOneof('metadata')
+    if which_metadata == 'metadata_files':
+      yield from self._scan_metadata_files()
+    elif which_metadata == 'derived_metadata':
+      yield from self._derive_items_metadata()
+    else:
+      raise ValueError('None of Config.metadata is set.')
 
   def _compute_mapping(self) -> None:
     """Computes the mappings from group to group keys to paths."""
