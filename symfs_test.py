@@ -1,5 +1,6 @@
 from pathlib import Path, PosixPath
 
+import re
 import tempfile
 
 from absl.testing import absltest
@@ -109,8 +110,12 @@ class SymFsTest(parameterized.TestCase):
         with self.assertLogs(level='WARNING') as logs:
           symfs.main(None)
           self.assertLen(logs.output, len(expected_warnings))
-          for actual, regex in zip(logs.output, expected_warnings):
-            self.assertRegex(actual, regex)
+          # Order is not necessarily deterministic.
+          self.assertCountEqual(
+              map(
+                  lambda line: re.sub(' /home/.*$', '',
+                                      re.sub('^WARNING:absl:', '', line)),
+                  logs.output), expected_warnings)
 
       mapping = {}
       for group_path in Path(output_path).glob('*'):
