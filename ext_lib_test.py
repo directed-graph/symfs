@@ -2,6 +2,7 @@ from absl.testing import absltest
 from absl.testing import parameterized
 from google.protobuf import descriptor_pb2
 
+import derived_metadata
 import ext_lib
 import ext_pb2
 
@@ -23,6 +24,14 @@ class ExtLibTest(parameterized.TestCase):
     with self.assertRaisesRegex(KeyError,
                                 f'Unable to find message {type_name}'):
       ext_lib.get_prototype(type_name)
+
+  @parameterized.parameters(
+      ('derived_metadata.financials.from_statements',
+       derived_metadata.financials.from_statements),)
+  def test_get_derived_metadata_function(self, name, expected_function):
+    """Ensures we get the correct function."""
+    self.assertEqual(
+        ext_lib.get_derived_metadata_function(name), expected_function)
 
 
 if __name__ == '__main__':

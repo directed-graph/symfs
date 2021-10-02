@@ -34,10 +34,20 @@ py_proto_library(
 )
 
 py_library(
+  name = "derived_metadata_lib",
+  srcs = glob(["derived_metadata/*.py"]),
+  deps = [
+    ":symfs_py_proto",
+  ],
+)
+
+py_library(
   name = "ext_lib",
   srcs = ["ext_lib.py"],
   deps = [
+    ":derived_metadata_lib",
     ":ext_py_proto",
+    ":symfs_py_proto",
   ],
 )
 
@@ -74,6 +84,7 @@ py_test(
   srcs = ["ext_lib_test.py"],
   python_version = "PY3",
   deps = [
+    ":derived_metadata_lib",
     ":ext_lib",
     ":ext_py_proto",
     "@abseil//absl/testing:absltest",
