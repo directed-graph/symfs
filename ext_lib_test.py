@@ -17,6 +17,13 @@ class ExtLibTest(parameterized.TestCase):
     """Ensures we get the correct prototype."""
     self.assertEqual(ext_lib.get_prototype(type_name), expected_prototype)
 
+  def test_get_prototype_missing(self):
+    """Ensures non-existent prototypes raises an error."""
+    type_name = 'does.not.exist'
+    with self.assertRaisesRegex(KeyError,
+                                f'Unable to find message {type_name}'):
+      ext_lib.get_prototype(type_name)
+
 
 if __name__ == '__main__':
   absltest.main()
