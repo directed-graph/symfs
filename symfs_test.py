@@ -1,4 +1,5 @@
 from pathlib import Path, PosixPath
+from unittest import mock
 
 import re
 import tempfile
@@ -6,9 +7,11 @@ import tempfile
 from absl.testing import absltest
 from absl.testing import flagsaver
 from absl.testing import parameterized
+from google.protobuf import any_pb2
 from google.protobuf import text_format
 from rules_python.python.runfiles import runfiles
 
+import ext_lib
 import ext_pb2
 import symfs
 import symfs_pb2
@@ -33,6 +36,32 @@ EXPECTED_MAPPING: symfs.GroupToKeyToPathMapping = {
         'v_value': {PosixPath(TEST_DATA_DIR)},
     },
 }
+
+
+def mock_derived_metadata_function(
+    path: Path, parameters: any_pb2.Any) -> symfs_pb2.Metadata:
+  """Mock custom derived metadata function.
+
+  The metadata this function generates will be simply a copy of the parameters,
+  which is assumed to be everchanging.symfs.ext.TestMessage, with TestMessage.s
+  replaced with the path as a string.
+
+  Args:
+    path: The file path to derive metadata.
+    parameters: Assumed to be everchanging.symfs.ext.TestMessage
+
+  Returns:
+    Metadata proto with TestMessage and TestMessage.s replaced with the path.
+  """
+  test_message = ext_pb2.TestMessage()
+  parameters.Unpack(test_message)
+
+  test_message.s = str(path)
+
+  metadata = symfs_pb2.Metadata()
+  metadata.data.Pack(test_message)
+
+  return metadata
 
 
 class SymFsTest(parameterized.TestCase):
@@ -222,6 +251,67 @@ class SymFsTest(parameterized.TestCase):
       self.assertIn(
           './relative/path is not an absolute path; may cause broken links!',
           logs.output[0])
+
+  def test_derived_metadata(self):
+    """Ensures correct generation of derived metadata.
+
+    This test is mainly concerned with ensuring that derived metadata are
+    generated in the proper manner. As such, the test will simply ensure the
+    ppropriate functions are called.
+    """
+    test_message = ext_pb2.TestMessage()
+    with open(TEST_MESSAGE_FILE) as stream:
+      text_format.Parse(stream.read(), test_message)
+    test_parameters = any_pb2.Any()
+    test_parameters.Pack(test_message)
+
+    config = symfs_pb2.Config()
+    with open(TEST_CONFIG_FILE) as stream:
+      text_format.Parse(stream.read(), config)
+    config.source_paths.append(TEST_DATA_DIR)
+
+    # This will automatically overwrite the oneof.
+    config.derived_metadata.item_mode = symfs_pb2.Config.DerivedMetadata.ItemMode.FILES
+    config.derived_metadata.function_name = 'the.function.name'
+    config.derived_metadata.parameters.CopyFrom(test_parameters)
+
+    with mock.patch.object(
+        ext_lib, 'get_derived_metadata_function',
+        autospec=True) as mock_get_derived_metadata_function:
+      mock_get_derived_metadata_function.return_value = mock_derived_metadata_function
+
+      # We will just check the first metadata, as the mock custom function does
+      # not do anything special other than add the path to Metadata.data.
+      path, metadata = next(symfs.SymFs(config).scan_metadata())
+
+    expected_metadata = symfs_pb2.Metadata()
+    test_message.s = str(path)
+    expected_metadata.data.Pack(test_message)
+
+    self.assertEqual(metadata, expected_metadata)
+
+  def test_derived_metadata_unmatched(self):
+    """Ensures items only match those specified."""
+    config = symfs_pb2.Config()
+    with open(TEST_CONFIG_FILE) as stream:
+      text_format.Parse(stream.read(), config)
+    config.source_paths.append(TEST_DATA_DIR)
+
+    # This will automatically overwrite the oneof.
+    config.derived_metadata.item_mode = symfs_pb2.Config.DerivedMetadata.ItemMode.DIRECTORIES
+    config.derived_metadata.function_name = 'the.function.name'
+
+    with mock.patch.object(
+        ext_lib, 'get_derived_metadata_function',
+        autospec=True) as mock_get_derived_metadata_function:
+      mock_get_derived_metadata_function.return_value = mock_derived_metadata_function
+
+      with self.assertLogs(level='WARNING') as logs:
+        list(symfs.SymFs(config).scan_metadata())
+
+        self.assertLen(logs.output, 1)
+        self.assertIn(f'No items found in {config.source_paths[0]}',
+                      logs.output[0])
 
 
 if __name__ == '__main__':

@@ -209,7 +209,23 @@ class SymFs:
     Yields:
       Tuples of items and associated metadata for that item.
     """
-    raise NotImplementedError('Derived Metadata not implemented yet.')
+    derived_metadata_function = functools.partial(
+        ext_lib.get_derived_metadata_function(
+            self.config.derived_metadata.function_name),
+        parameters=self.config.derived_metadata.parameters)
+    ItemMode = symfs_pb2.Config.DerivedMetadata.ItemMode
+
+    for source_path in self.config.source_paths:
+      yielded = False
+      for item in pathlib.Path(source_path).rglob('*'):
+        if ((self.config.derived_metadata.item_mode
+             in (ItemMode.ALL, ItemMode.FILES) and item.is_file()) or
+            (self.config.derived_metadata.item_mode
+             in (ItemMode.ALL, ItemMode.DIRECTORIES) and item.is_dir())):
+          yielded = True
+          yield item, derived_metadata_function(item)
+      if not yielded:
+        logging.warning('No items found in %s.', source_path)
 
   def scan_metadata(self) -> Iterator[Tuple[pathlib.Path, symfs_pb2.Metadata]]:
     """Yields tuples of items and associated metadata based on Config.metadata.
