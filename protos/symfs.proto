@@ -38,10 +38,14 @@ message Config {
     // will be a group, and that item will be associated with each group. See
     // `max_repeated_group` on changing this behavior.
     //
+    // If this field is repeated, then the resultant view will be nested in the
+    // order provided. For example, if you provide `a` and `b`, then the
+    // resultant view will group by `a`, and then for each group, group by `b`.
+    //
     // Currently, nested Any protos are not supported. Further, any field other
     // than the terminal field cannot be a repeated field. Finally, the
     // terminal field must be of a scalar or repeated scalar type.
-    string field = 2;
+    repeated string field = 2;
 
     // Determines the maximum subgroup to form if `field` is `repeated`. If 0
     // (default) or 1, each element will be treated as a group. Otherwise, all

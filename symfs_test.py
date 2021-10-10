@@ -72,7 +72,7 @@ class SymFsTest(parameterized.TestCase):
       text_format.Parse(stream.read(), message)
 
     self.assertEqual(
-        set(symfs.generate_groups(message, 'rs', max_repeated_group)),
+        set(symfs.generate_groups(message, ['rs'], max_repeated_group)),
         expected_output)
 
   def test_compute_mapping(self):
@@ -82,22 +82,25 @@ class SymFsTest(parameterized.TestCase):
       text_format.Parse(stream.read(), config)
 
     config.source_paths.append(TEST_DATA_DIR)
-    group_by = config.group_by.add()
-    group_by.name = 'by_m'
-    group_by.field = 'm.value'
+    group_by = config.group_by.add(
+        name='by_m',
+        field=['m.value'],
+    )
 
     self.assertEqual(symfs.SymFs(config).get_mapping(), EXPECTED_MAPPING)
 
   def test_generate_from_main(self):
     """E2E test to ensure SymFs is correctly generated."""
-    not_exist = 'Field {} does not exist in message type {}; skipping'
-    not_scalar = 'Field {} in message type {} is not scalar; skipping'
+    not_exist = '{}: no such field in message type {}; skipping'
+    not_scalar = '{}: the sub-field in {} is not scalar; skipping'
     expected_warnings = [
         not_exist.format('s', 'everchanging.symfs.ext.Media'),
         not_exist.format('rs', 'everchanging.symfs.ext.Media'),
-        not_exist.format('m.value', 'everchanging.symfs.ext.Media'),
         not_exist.format('m', 'everchanging.symfs.ext.Media'),
-        not_scalar.format('m', 'everchanging.symfs.ext.TestMessage'),
+        # For m.value.
+        not_exist.format('m', 'everchanging.symfs.ext.Media'),
+        not_scalar.format('InnerTestMessage',
+                          'everchanging.symfs.ext.TestMessage'),
         'No metadata files found in /does/not/exist.',
     ]
 

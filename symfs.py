@@ -63,7 +63,7 @@ def extract_field_as_iterable(message: message.Message,
   return [current]
 
 
-def generate_groups(message: message.Message, field: str,
+def generate_groups(message: message.Message, fields: Iterable[str],
                     max_repeated_group: int) -> Iterator[Iterable[Any]]:
   """Yields possible groups given the message and field.
 
@@ -75,7 +75,7 @@ def generate_groups(message: message.Message, field: str,
   Yields:
     Iterables of group keys generated from the message and field.
   """
-  groups = extract_field_as_iterable(message, field)
+  groups = extract_field_as_iterable(message, fields[0])
   for group_size in range(1, 1 + (max_repeated_group or 1)):
     yield from itertools.combinations(groups, group_size)
 
@@ -147,18 +147,19 @@ class SymFs:
             group = next(groups)
           except StopIteration:
             break
-          except AttributeError:
+          except AttributeError as error:
             logging.warning(
-                'Field %s does not exist in message type %s; skipping %s.',
-                group_by.field, metadata.data.TypeName(), path)
+                '%s: no such field in message type %s; skipping %s.', error,
+                metadata.data.TypeName(), path)
             continue
 
           try:
             group_key = '-'.join(sorted(group))
-          except TypeError:
+          except TypeError as error:
             logging.warning(
-                'Field %s in message type %s is not scalar; skipping %s.',
-                group_by.field, metadata.data.TypeName(), path)
+                '%s: the sub-field in %s is not scalar; skipping %s.',
+                re.sub(r'.* (.*) found', r'\g<1>', str(error)),
+                metadata.data.TypeName(), path)
             continue
 
           try:
@@ -215,7 +216,7 @@ def main(argv):
       del config.group_by[:]
     for group_by in _GROUP_BY.value:
       name, field = group_by.split(':')
-      config.group_by.append(symfs_pb2.Config.GroupBy(name=name, field=field))
+      config.group_by.append(symfs_pb2.Config.GroupBy(name=name, field=[field]))
 
   if _PATH.value:
     config.path = _PATH.value
