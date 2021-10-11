@@ -8,6 +8,7 @@ message TestMessage {
   // Next tag: 2
   message InnerTestMessage {
     string value = 1;
+    repeated string rv = 2;
   }
   string s = 1;
   repeated string rs = 2;
