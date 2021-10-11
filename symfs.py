@@ -1,8 +1,10 @@
-from pprint import pformat
-from typing import Any, Iterable, Iterator, Mapping, Set, Tuple
+from typing import Any, Iterable, Iterator, Mapping, Optional, Set, Tuple
 
+import functools
 import itertools
+import os
 import pathlib
+import pprint
 import re
 
 from absl import app
@@ -63,21 +65,77 @@ def extract_field_as_iterable(message: message.Message,
   return [current]
 
 
+def _generate_combined_groups(
+    groups: Tuple[Iterable[Any]],
+    parent_groups: Optional[Tuple[str]]) -> Iterator[str]:
+  groups = map(lambda group: '-'.join(sorted(map(str, group))), groups)
+  if parent_groups is None:
+    yield from groups
+  else:
+    # Note that groups is an iterator; so we iterate it first.
+    for group in groups:
+      for parent_group in parent_groups:
+        yield os.path.join(str(parent_group), group)
+
+
 def generate_groups(message: message.Message, fields: Iterable[str],
-                    max_repeated_group: int) -> Iterator[Iterable[Any]]:
-  """Yields possible groups given the message and field.
+                    max_repeated_group: int, **kwargs) -> Iterator[str]:
+  """Yields possible group keys given the message and field.
+
+  This function will generate group keys based on the fields provided in
+  `fields`. Each field in `fields` may be repeated in `message`; if this is the
+  case, the group keys will come from all possible combinations of the field
+  values in the repeated field up to `max_repeated_group`.
+
+  If more than one field is provided in `fields`, the same operation will be
+  applied in the given order to create a nested group key until all items in
+  `fields` are processed. Basic implementation idea is as follows:
+
+  1. Extract field as an iterable.
+  2. Get all possible combination of the field, up to `max_repeated_group`.
+  3. Repeat steps 1 and 2 for the next field and combine it with all
+     combinations we have for the current field.
+  4. Repeat step 3 until we go through each field in `fields`.
+
+  Implementation-wise, we memoize step 2.
 
   Args:
     message: The message that contains the desired field to get the keys.
-    field: The field to extract the fields to generate the group keys.
+    fields: The fields to extract the fields to generate the group keys.
     max_repeated_group: The maximum group size; must be at least 1.
+    **kwargs: For internal use.
 
   Yields:
     Iterables of group keys generated from the message and field.
   """
-  groups = extract_field_as_iterable(message, fields[0])
-  for group_size in range(1, 1 + (max_repeated_group or 1)):
-    yield from itertools.combinations(groups, group_size)
+  if 'parent_groups' in kwargs:
+    parent_groups = tuple(kwargs['parent_groups'])
+  else:
+    parent_groups = None
+
+  if 'combinations_cache' in kwargs:
+    combinations_cache = kwargs['combinations_cache']
+  else:
+    combinations_cache = {}
+
+  extracted_fields = tuple(extract_field_as_iterable(message, fields[0]))
+  for group_size in range(
+      1, 1 + min((max_repeated_group or 1), len(extracted_fields))):
+    combinations_key = (extracted_fields, group_size)
+    if combinations_key not in combinations_cache:
+      combinations_cache[combinations_key] = tuple(
+          itertools.combinations(extracted_fields, group_size))
+    groups = combinations_cache[combinations_key]
+
+    if len(fields) == 1:
+      yield from _generate_combined_groups(groups, parent_groups)
+    else:
+      yield from generate_groups(
+          message,
+          fields[1:],
+          max_repeated_group,
+          parent_groups=_generate_combined_groups(groups, parent_groups),
+          combinations_cache=combinations_cache)
 
 
 class SymFs:
@@ -140,11 +198,11 @@ class SymFs:
         metadata.data.Unpack(message)
 
         # Manually iterate generator to allow for better exception handling.
-        groups = generate_groups(message, group_by.field,
-                                 group_by.max_repeated_group)
+        group_keys = generate_groups(message, group_by.field,
+                                     group_by.max_repeated_group)
         while True:
           try:
-            group = next(groups)
+            group_key = next(group_keys)
           except StopIteration:
             break
           except AttributeError as error:
@@ -152,13 +210,10 @@ class SymFs:
                 '%s: no such field in message type %s; skipping %s.', error,
                 metadata.data.TypeName(), path)
             continue
-
-          try:
-            group_key = '-'.join(sorted(group))
           except TypeError as error:
             logging.warning(
                 '%s: the sub-field in %s is not scalar; skipping %s.',
-                re.sub(r'.* (.*) found', r'\g<1>', str(error)),
+                re.sub(r'.* \'(.*)\'', r'\g<1>', str(error)),
                 metadata.data.TypeName(), path)
             continue
 
@@ -227,7 +282,7 @@ def main(argv):
     config.source_paths.extend(_SOURCE_PATHS.value)
 
   symfs = SymFs(config)
-  logging.debug('\n%s', pformat(symfs.get_mapping()))
+  logging.debug('\n%s', pprint.pformat(symfs.get_mapping()))
   symfs.generate(dry_run=_DRY_RUN.value)
 
 

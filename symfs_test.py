@@ -54,17 +54,90 @@ class SymFsTest(parameterized.TestCase):
         symfs.extract_field_as_iterable(message, field), expected_output)
 
   @parameterized.named_parameters(
-      ('multi_group_key', 2, {
-          ('rs_value_0',),
-          ('rs_value_1',),
-          ('rs_value_0', 'rs_value_1'),
+      ('multi_group_key', ['rs'], 2, {
+          'rs_value_0',
+          'rs_value_1',
+          'rs_value_0-rs_value_1',
       }),
-      ('single_group_key', 1, {
-          ('rs_value_0',),
-          ('rs_value_1',),
+      ('single_group_key', ['rs'], 1, {
+          'rs_value_0',
+          'rs_value_1',
+      }),
+      ('nested_single_group_key', ['rs', 'm.value'], 1, {
+          'rs_value_0/v_value',
+          'rs_value_1/v_value',
+      }),
+      ('nested_two_group_key', ['rs', 'm.value'], 2, {
+          'rs_value_0/v_value',
+          'rs_value_1/v_value',
+          'rs_value_0-rs_value_1/v_value',
+      }),
+      ('nested_multi_group_key', ['rs', 'm.rv'], 2, {
+          'rs_value_0/rv_0',
+          'rs_value_0/rv_1',
+          'rs_value_0/rv_2',
+          'rs_value_0/rv_3',
+          'rs_value_0/rv_0-rv_1',
+          'rs_value_0/rv_0-rv_2',
+          'rs_value_0/rv_0-rv_3',
+          'rs_value_0/rv_1-rv_2',
+          'rs_value_0/rv_1-rv_3',
+          'rs_value_0/rv_2-rv_3',
+          'rs_value_1/rv_0',
+          'rs_value_1/rv_1',
+          'rs_value_1/rv_2',
+          'rs_value_1/rv_3',
+          'rs_value_1/rv_0-rv_1',
+          'rs_value_1/rv_0-rv_2',
+          'rs_value_1/rv_0-rv_3',
+          'rs_value_1/rv_1-rv_2',
+          'rs_value_1/rv_1-rv_3',
+          'rs_value_1/rv_2-rv_3',
+          'rs_value_0-rs_value_1/rv_0',
+          'rs_value_0-rs_value_1/rv_1',
+          'rs_value_0-rs_value_1/rv_2',
+          'rs_value_0-rs_value_1/rv_3',
+          'rs_value_0-rs_value_1/rv_0-rv_1',
+          'rs_value_0-rs_value_1/rv_0-rv_2',
+          'rs_value_0-rs_value_1/rv_0-rv_3',
+          'rs_value_0-rs_value_1/rv_1-rv_2',
+          'rs_value_0-rs_value_1/rv_1-rv_3',
+          'rs_value_0-rs_value_1/rv_2-rv_3',
+      }),
+      ('nested_multi_group_key_flip', ['m.rv', 'rs'], 2, {
+          'rv_0/rs_value_0',
+          'rv_1/rs_value_0',
+          'rv_2/rs_value_0',
+          'rv_3/rs_value_0',
+          'rv_0-rv_1/rs_value_0',
+          'rv_0-rv_2/rs_value_0',
+          'rv_0-rv_3/rs_value_0',
+          'rv_1-rv_2/rs_value_0',
+          'rv_1-rv_3/rs_value_0',
+          'rv_2-rv_3/rs_value_0',
+          'rv_0/rs_value_1',
+          'rv_1/rs_value_1',
+          'rv_2/rs_value_1',
+          'rv_3/rs_value_1',
+          'rv_0-rv_1/rs_value_1',
+          'rv_0-rv_2/rs_value_1',
+          'rv_0-rv_3/rs_value_1',
+          'rv_1-rv_2/rs_value_1',
+          'rv_1-rv_3/rs_value_1',
+          'rv_2-rv_3/rs_value_1',
+          'rv_0/rs_value_0-rs_value_1',
+          'rv_1/rs_value_0-rs_value_1',
+          'rv_2/rs_value_0-rs_value_1',
+          'rv_3/rs_value_0-rs_value_1',
+          'rv_0-rv_1/rs_value_0-rs_value_1',
+          'rv_0-rv_2/rs_value_0-rs_value_1',
+          'rv_0-rv_3/rs_value_0-rs_value_1',
+          'rv_1-rv_2/rs_value_0-rs_value_1',
+          'rv_1-rv_3/rs_value_0-rs_value_1',
+          'rv_2-rv_3/rs_value_0-rs_value_1',
       }),
   )
-  def test_generate_groups(self, max_repeated_group, expected_output):
+  def test_generate_groups(self, fields, max_repeated_group, expected_output):
     """Ensures expected groups are generated."""
     message = ext_pb2.TestMessage()
 
@@ -72,7 +145,7 @@ class SymFsTest(parameterized.TestCase):
       text_format.Parse(stream.read(), message)
 
     self.assertEqual(
-        set(symfs.generate_groups(message, ['rs'], max_repeated_group)),
+        set(symfs.generate_groups(message, fields, max_repeated_group)),
         expected_output)
 
   def test_compute_mapping(self):

@@ -9,6 +9,10 @@ rs: "rs_value_1"
 
 m {
   value: "v_value"
+  rv: "rv_0"
+  rv: "rv_1"
+  rv: "rv_2"
+  rv: "rv_3"
 }
 
 rm {
