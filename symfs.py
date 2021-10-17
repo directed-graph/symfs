@@ -212,8 +212,7 @@ class SymFs:
             continue
           except TypeError as error:
             logging.warning(
-                '%s: the sub-field in %s is not scalar; skipping %s.',
-                re.sub(r'.* \'(.*)\'', r'\g<1>', str(error)),
+                '%s: the sub-field in %s is not scalar; skipping %s.', error,
                 metadata.data.TypeName(), path)
             continue
 
