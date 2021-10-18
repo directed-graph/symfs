@@ -35,10 +35,25 @@ py_proto_library(
 
 py_library(
   name = "derived_metadata_lib",
-  srcs = glob(["derived_metadata/*.py"]),
+  srcs = glob(
+    ["derived_metadata/*.py"],
+    exclude=["derived_metadata/*_test.py"],
+  ),
   deps = [
     ":ext_py_proto",
     ":symfs_py_proto",
+  ],
+)
+
+py_test(
+  name = "derived_metadata/financials_test",
+  srcs = ["derived_metadata/financials_test.py"],
+  python_version = "PY3",
+  deps = [
+    ":derived_metadata_lib",
+    ":ext_py_proto",
+    "@abseil//absl/testing:absltest",
+    "@abseil//absl/testing:parameterized",
   ],
 )
 

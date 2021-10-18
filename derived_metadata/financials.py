@@ -92,3 +92,19 @@ def _register_get_date(
   return _register_get_date_by_institution
 
 
+@_register_get_date('Ally')
+def _get_date_from_ally(path: pathlib.Path) -> time.struct_time:
+  return time.strptime(path.name, '%b %Y Ally Bank Statement.pdf')
+
+
+@_register_get_date('Chase')
+def _get_date_from_chase(path: pathlib.Path) -> time.struct_time:
+  return time.strptime(
+      re.match(r'(\d+)-statements-x?\d+-\.pdf', path.name).group(1), '%Y%m%d')
+
+
+@_register_get_date('Discover')
+def _get_date_from_discover(path: pathlib.Path) -> time.struct_time:
+  return time.strptime(
+      re.match(r'Discover-Statement-(\d+)-\d+\.pdf', path.name).group(1),
+      '%Y%m%d')
