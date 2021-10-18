@@ -43,3 +43,22 @@ message Media {
   // The sources from which this media was obtained.
   repeated string sources = 8;
 }
+
+// A generic message for financial statements.
+// Next tag: 4
+message FinancialStatement {
+  // Using strings so we can prepend 0s directly in metadata.
+  message Date {
+    string year = 1;
+    string month = 2;
+    string day = 3;
+  }
+  // The institution.
+  string institution = 1;
+
+  // The account identifier or name.
+  string account = 2;
+
+  // The statement date
+  Date date = 3;
+}
