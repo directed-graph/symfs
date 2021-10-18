@@ -222,8 +222,13 @@ class SymFs:
              in (ItemMode.ALL, ItemMode.FILES) and item.is_file()) or
             (self.config.derived_metadata.item_mode
              in (ItemMode.ALL, ItemMode.DIRECTORIES) and item.is_dir())):
-          yielded = True
-          yield item, derived_metadata_function(item)
+          try:
+            yield item, derived_metadata_function(item)
+          except (AttributeError, ValueError) as error:
+            logging.warning('Failed to derive Metadata: %s; skipping %s.',
+                            error, item)
+          else:
+            yielded = True
       if not yielded:
         logging.warning('No items found in %s.', source_path)
 
