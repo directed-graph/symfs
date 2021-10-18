@@ -240,7 +240,9 @@ class SymFs:
         (output_path / group_name).mkdir(exist_ok=True)
       for group_key, group_items in group.items():
         if not dry_run:
-          (output_path / group_name / group_key).mkdir(exist_ok=True)
+          # We need parents because group_key may be nested.
+          (output_path / group_name / group_key).mkdir(
+              exist_ok=True, parents=True)
         for item in group_items:
           item_path = output_path / group_name / group_key / item.name
           if item_path.exists():
