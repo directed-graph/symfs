@@ -37,6 +37,7 @@ py_library(
   name = "derived_metadata_lib",
   srcs = glob(["derived_metadata/*.py"]),
   deps = [
+    ":ext_py_proto",
     ":symfs_py_proto",
   ],
 )

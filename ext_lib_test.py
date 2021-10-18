@@ -26,8 +26,8 @@ class ExtLibTest(parameterized.TestCase):
       ext_lib.get_prototype(type_name)
 
   @parameterized.parameters(
-      ('derived_metadata.financials.from_statements',
-       derived_metadata.financials.from_statements),)
+      ('derived_metadata.financials.from_statement',
+       derived_metadata.financials.from_statement),)
   def test_get_derived_metadata_function(self, name, expected_function):
     """Ensures we get the correct function."""
     self.assertEqual(
