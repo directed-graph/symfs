@@ -1,6 +1,8 @@
 from pathlib import Path, PosixPath
 from unittest import mock
 
+import os
+import pathlib
 import re
 import tempfile
 
@@ -18,9 +20,12 @@ import symfs_pb2
 
 r = runfiles.Create()
 TEST_CONFIG_FILE = r.Rlocation('everchanging/test_data/config.textproto')
+TEST_DATA_DIR = r.Rlocation('everchanging/test_data')
+TEST_FROM_STATEMENTS_FILE = r.Rlocation(
+    'everchanging/test_data/from_statements.textproto')
 TEST_MESSAGE_FILE = r.Rlocation('everchanging/test_data/test_message.textproto')
 TEST_METADATA_FILE = r.Rlocation('everchanging/test_data/metadata.textproto')
-TEST_DATA_DIR = r.Rlocation('everchanging/test_data')
+TEST_STATEMENTS_DIR = r.Rlocation('everchanging/test_data/statements')
 
 # Expected mapping for TEST_CONFIG_FILE under test_data directory.
 EXPECTED_MAPPING: symfs.GroupToKeyToPathMapping = {
@@ -34,6 +39,48 @@ EXPECTED_MAPPING: symfs.GroupToKeyToPathMapping = {
     },
     'by_m': {
         'v_value': {PosixPath(TEST_DATA_DIR)},
+    },
+}
+
+map_statements = lambda s: set(
+    map(lambda f: PosixPath(os.path.join(TEST_STATEMENTS_DIR, f)), s))
+# Expected mapping for TEST_FROM_STATEMENTS_FILE under TEST_STATEMENTS_DIR.
+EXPECTED_FROM_STATEMENTS_MAPPING: symfs.GroupToKeyToPathMapping = {
+    'by_institution': {
+        'Chase/credit-card/2018':
+            map_statements({'Chase/credit-card/20180102-statements-x1234-.pdf'}
+                          ),
+        'Chase/credit-card-2/2020':
+            map_statements(
+                {'Chase/credit-card-2/20200602-statements-4321-.pdf'}),
+        'Chase/credit-card-2/2021':
+            map_statements(
+                {'Chase/credit-card-2/20211202-statements-4321-.pdf'}),
+        'Discover/it-card/2021':
+            map_statements({
+                'Discover/it-card/Discover-Statement-20211003-1234.pdf',
+                'Discover/it-card/Discover-Statement-20211103-1234.pdf',
+                'Discover/it-card/Discover-Statement-20211203-1234.pdf'
+            }),
+    },
+    'by_date': {
+        '2018/01':
+            map_statements({'Chase/credit-card/20180102-statements-x1234-.pdf'}
+                          ),
+        '2020/06':
+            map_statements(
+                {'Chase/credit-card-2/20200602-statements-4321-.pdf'}),
+        '2021/10':
+            map_statements(
+                {'Discover/it-card/Discover-Statement-20211003-1234.pdf'}),
+        '2021/11':
+            map_statements(
+                {'Discover/it-card/Discover-Statement-20211103-1234.pdf'}),
+        '2021/12':
+            map_statements({
+                'Discover/it-card/Discover-Statement-20211203-1234.pdf',
+                'Chase/credit-card-2/20211202-statements-4321-.pdf',
+            }),
     },
 }
 
@@ -177,19 +224,27 @@ class SymFsTest(parameterized.TestCase):
         set(symfs.generate_groups(message, fields, max_repeated_group)),
         expected_output)
 
-  def test_compute_mapping(self):
+  @parameterized.named_parameters(
+      ('metadata_files', TEST_CONFIG_FILE, [('by_m', ['m.value'])
+                                           ], TEST_DATA_DIR, EXPECTED_MAPPING),
+      ('derived_metadata', TEST_FROM_STATEMENTS_FILE, [], TEST_STATEMENTS_DIR,
+       EXPECTED_FROM_STATEMENTS_MAPPING),
+  )
+  def test_compute_mapping(self, config_file, additional_group_bys, source_path,
+                           expected_mapping):
     """Ensures mapping can be correctly computed; also tests scan_metadata."""
     config = symfs_pb2.Config()
-    with open(TEST_CONFIG_FILE) as stream:
+    with open(config_file) as stream:
       text_format.Parse(stream.read(), config)
 
-    config.source_paths.append(TEST_DATA_DIR)
-    group_by = config.group_by.add(
-        name='by_m',
-        field=['m.value'],
-    )
+    config.source_paths.append(source_path)
+    for group_by in additional_group_bys:
+      config.group_by.add(
+          name=group_by[0],
+          field=group_by[1],
+      )
 
-    self.assertEqual(symfs.SymFs(config).get_mapping(), EXPECTED_MAPPING)
+    self.assertEqual(symfs.SymFs(config).get_mapping(), expected_mapping)
 
   def test_generate_from_main(self):
     """E2E test to ensure SymFs is correctly generated."""
@@ -257,7 +312,7 @@ class SymFsTest(parameterized.TestCase):
 
     This test is mainly concerned with ensuring that derived metadata are
     generated in the proper manner. As such, the test will simply ensure the
-    ppropriate functions are called.
+    appropriate functions are called.
     """
     test_message = ext_pb2.TestMessage()
     with open(TEST_MESSAGE_FILE) as stream:
@@ -295,10 +350,9 @@ class SymFsTest(parameterized.TestCase):
     config = symfs_pb2.Config()
     with open(TEST_CONFIG_FILE) as stream:
       text_format.Parse(stream.read(), config)
-    config.source_paths.append(TEST_DATA_DIR)
 
     # This will automatically overwrite the oneof.
-    config.derived_metadata.item_mode = symfs_pb2.Config.DerivedMetadata.ItemMode.DIRECTORIES
+    config.derived_metadata.item_mode = symfs_pb2.Config.DerivedMetadata.ItemMode.FILES
     config.derived_metadata.function_name = 'the.function.name'
 
     with mock.patch.object(
@@ -306,12 +360,15 @@ class SymFsTest(parameterized.TestCase):
         autospec=True) as mock_get_derived_metadata_function:
       mock_get_derived_metadata_function.return_value = mock_derived_metadata_function
 
-      with self.assertLogs(level='WARNING') as logs:
-        list(symfs.SymFs(config).scan_metadata())
+      with tempfile.TemporaryDirectory() as no_files_path:
+        pathlib.Path(f'{no_files_path}/test').mkdir()
+        config.source_paths.append(no_files_path)
+        with self.assertLogs(level='WARNING') as logs:
+          list(symfs.SymFs(config).scan_metadata())
 
-        self.assertLen(logs.output, 1)
-        self.assertIn(f'No items found in {config.source_paths[0]}',
-                      logs.output[0])
+          self.assertLen(logs.output, 1)
+          self.assertIn(f'No items found in {config.source_paths[0]}',
+                        logs.output[0])
 
 
 if __name__ == '__main__':

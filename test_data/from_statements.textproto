@@ -1,0 +1,23 @@
+# proto-file: protos/symfs.proto
+# proto-name: everchanging.symfs.Config
+
+path: "/test/output/path"
+
+group_by {
+  name: "by_institution"
+  field: "institution"
+  field: "account"
+  field: "date.year"
+}
+
+group_by {
+  name: "by_date"
+  field: "date.year"
+  field: "date.month"
+}
+
+derived_metadata {
+  item_mode: FILES
+  function_name: "derived_metadata.financials.from_statement"
+}
+

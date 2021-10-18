@@ -84,7 +84,7 @@ py_test(
   name = "symfs_test",
   srcs = ["symfs_test.py"],
   python_version = "PY3",
-  data = glob(["test_data/*"]),
+  data = glob(["test_data/**"]),
   deps = [
     ":symfs",
     ":symfs_py_proto",
