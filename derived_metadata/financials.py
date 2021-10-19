@@ -108,3 +108,21 @@ def _get_date_from_discover(path: pathlib.Path) -> time.struct_time:
   return time.strptime(
       re.match(r'Discover-Statement-(\d+)-\d+\.pdf', path.name).group(1),
       '%Y%m%d')
+
+
+@_register_get_date('ETrade')
+def _get_date_from_etrade(path: pathlib.Path) -> time.struct_time:
+  return time.strptime(
+      re.match(r'Brokerage Statement - XXXX\d{4} - (\d+)\.pdf',
+               path.name).group(1), '%Y%m')
+
+
+@_register_get_date('Fidelity')
+def _get_date_from_fidelity(path: pathlib.Path) -> time.struct_time:
+  return time.strptime(
+      re.match(r'Statement(\d+)\.pdf', path.name).group(1), '%m%d%Y')
+
+
+@_register_get_date('Marcus')
+def _get_date_from_marcus(path: pathlib.Path) -> time.struct_time:
+  return time.strptime(path.name.split('_')[1], '%Y%m%d')

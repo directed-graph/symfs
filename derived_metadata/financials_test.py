@@ -41,6 +41,39 @@ TEST_PARAMETERS = [
              day='03',
          ),
      )),
+    (pathlib.Path(
+        '/to/ETrade/brokerage/Brokerage Statement - XXXX1234 - 202006.pdf'),
+     ext_pb2.FinancialStatement(
+         institution='ETrade',
+         account='brokerage',
+         date=ext_pb2.FinancialStatement.Date(
+             year='2020',
+             month='06',
+             day='01',
+         ),
+     )),
+    (pathlib.Path('/Fidelity/Individual/Statement07312021.pdf'),
+     ext_pb2.FinancialStatement(
+         institution='Fidelity',
+         account='Individual',
+         date=ext_pb2.FinancialStatement.Date(
+             year='2021',
+             month='07',
+             day='31',
+         ),
+     )),
+    (pathlib.Path(
+        '/path/to/Marcus/OnlineSavings/STMTCMB100_20190301_1234_LName_123456_654321.pdf'
+    ),
+     ext_pb2.FinancialStatement(
+         institution='Marcus',
+         account='OnlineSavings',
+         date=ext_pb2.FinancialStatement.Date(
+             year='2019',
+             month='03',
+             day='01',
+         ),
+     )),
 ]
 
 
