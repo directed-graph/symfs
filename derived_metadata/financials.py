@@ -178,3 +178,9 @@ def _get_date_from_wealthfront(path: pathlib.Path) -> time.struct_time:
           r'GREEN_DOT_STATEMENT_(\d{4}-\d{2})_.*\.pdf',
           r'STATEMENT_(\d{4}-\d{2})_.*\.pdf',
       }, '%Y-%m')
+
+
+@_register_get_date('WellsFargo')
+def _get_date_from_wealthfront(path: pathlib.Path) -> time.struct_time:
+  return _get_date_with_patterns_helper(path, {r'(\d{6}) WellsFargo\.pdf'},
+                                        '%m%d%y')

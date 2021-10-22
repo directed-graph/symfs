@@ -129,6 +129,16 @@ BUILT_IN_TEST_PARAMETERS = [
              day='01',
          ),
      )),
+    (pathlib.Path('/path/WellsFargo/account/101421 WellsFargo.pdf'),
+     ext_pb2.FinancialStatement(
+         institution='WellsFargo',
+         account='account',
+         date=ext_pb2.FinancialStatement.Date(
+             year='2021',
+             month='10',
+             day='14',
+         ),
+     )),
 ]
 
 ADDITIONAL_FORMATS_TEST_PARAMETERS = [
