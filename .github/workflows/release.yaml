@@ -38,7 +38,7 @@ jobs:
 
       - run: bazel build :symfs.par
 
-      - run: bazel test --test_output=all :symfs_test :ext_lib_test
+      - run: bazel test --test_output=all :all
 
       - uses: ncipollo/release-action@v1
         with:
