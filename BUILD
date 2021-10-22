@@ -42,6 +42,7 @@ py_library(
   deps = [
     ":ext_py_proto",
     ":symfs_py_proto",
+    "@abseil//absl/logging",
   ],
 )
 

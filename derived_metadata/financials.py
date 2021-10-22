@@ -14,12 +14,13 @@ mechanism will only be implemented for `_get_date` for now, but we can apply
 this idea to `_get_account`, or even, indeed, `_get_institution` in the future.
 """
 
-from typing import Callable, Mapping
+from typing import Callable, Iterable, Mapping, Optional
 
 import pathlib
 import re
 import time
 
+from absl import logging
 from google.protobuf import any_pb2
 
 import symfs_pb2
@@ -39,7 +40,8 @@ def _get_account(path: pathlib.Path) -> str:
   return str(path).split('/')[-2]
 
 
-def _get_date(path: pathlib.Path) -> time.struct_time:
+def _get_date(path: pathlib.Path,
+              additional_formats: Iterable[str]) -> time.struct_time:
   """Returns the date.
 
   The date will depend on the institution; it is expected that there exists a
@@ -54,19 +56,34 @@ def _get_date(path: pathlib.Path) -> time.struct_time:
     The date derived from the path as a time struct.
 
   Raises:
-    KeyError: In the event that no per-institution function exist.
+    ValueError: In the event that we cannot parse the date.
   """
   institution = _get_institution(path)
   try:
     return _GET_DATE_BY_INSTITUTION[institution](path)
   except KeyError:
-    raise KeyError(f'No _get_date defined for {institution}.')
+    logging.error(
+        'No _get_date defined for %s; trying with additional_formats.',
+        institution)
+
+  for additional_format in additional_formats:
+    try:
+      return time.strptime(path.name, additional_format)
+    except ValueError:
+      logging.error('Unable to parse with "%s".', additional_format)
+
+  raise ValueError(f'Unable to parse date from {path.name}.')
 
 
-def from_statement(path: pathlib.Path,
-                   parameters: any_pb2.Any) -> symfs_pb2.Metadata:
+def from_statement(
+    path: pathlib.Path,
+    parameters: Optional[any_pb2.Any] = None) -> symfs_pb2.Metadata:
   """Returns Metadata for financial statement."""
-  date = _get_date(path)
+  params = ext_pb2.FinancialStatement.Parameters()
+  if parameters:
+    parameters.Unpack(params)
+
+  date = _get_date(path, params.additional_formats)
   metadata = symfs_pb2.Metadata()
   metadata.data.Pack(
       ext_pb2.FinancialStatement(
