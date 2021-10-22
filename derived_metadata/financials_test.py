@@ -74,6 +74,61 @@ BUILT_IN_TEST_PARAMETERS = [
              day='01',
          ),
      )),
+    (pathlib.Path('/path/to/Schwab/IRA/BrokerageStatement0331181234.pdf'),
+     ext_pb2.FinancialStatement(
+         institution='Schwab',
+         account='IRA',
+         date=ext_pb2.FinancialStatement.Date(
+             year='2018',
+             month='03',
+             day='31',
+         ),
+     )),
+    (pathlib.Path(
+        '/path/to/Schwab/investor-checking/BankStatement0131204321.pdf'),
+     ext_pb2.FinancialStatement(
+         institution='Schwab',
+         account='investor-checking',
+         date=ext_pb2.FinancialStatement.Date(
+             year='2020',
+             month='01',
+             day='31',
+         ),
+     )),
+    (pathlib.Path('/path/to/Schwab/portfolio/AccountStatement033121.pdf'),
+     ext_pb2.FinancialStatement(
+         institution='Schwab',
+         account='portfolio',
+         date=ext_pb2.FinancialStatement.Date(
+             year='2021',
+             month='03',
+             day='31',
+         ),
+     )),
+    (pathlib.Path(
+        '/path/Wealthfront/robo/STATEMENT_2020-05_abcd1234_2020-06-01T10_41_04.123-45_67.pdf'
+    ),
+     ext_pb2.FinancialStatement(
+         institution='Wealthfront',
+         account='robo',
+         date=ext_pb2.FinancialStatement.Date(
+             year='2020',
+             month='05',
+             day='01',
+         ),
+     )),
+    (pathlib.Path(
+        '/path/Wealthfront/checking/GREEN_DOT_STATEMENT_2020-08_1234abcd_2020-08-09T08_00_14.654-32_10.pdf'
+    ),
+     ext_pb2.FinancialStatement(
+         institution='Wealthfront',
+         account='checking',
+         date=ext_pb2.FinancialStatement.Date(
+             year='2020',
+             month='08',
+             day='01',
+         ),
+     )),
 ]
 
 ADDITIONAL_FORMATS_TEST_PARAMETERS = [

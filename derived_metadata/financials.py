@@ -65,6 +65,9 @@ def _get_date(path: pathlib.Path,
     logging.error(
         'No _get_date defined for %s; trying with additional_formats.',
         institution)
+  except ValueError:
+    logging.error('Failed to parse %s for %s; trying with additional_formats.',
+                  institution, path.name)
 
   for additional_format in additional_formats:
     try:
@@ -109,6 +112,19 @@ def _register_get_date(
   return _register_get_date_by_institution
 
 
+def _get_date_with_patterns_helper(path: pathlib.Path,
+                                   regex_patterns: Iterable[str],
+                                   date_format: str) -> time.struct_time:
+  for pattern in regex_patterns:
+    try:
+      return time.strptime(re.match(pattern, path.name).group(1), date_format)
+    except (AttributeError, ValueError) as error:
+      logging.error('Unable to parse %s with %s: %s.', path.name, pattern,
+                    error)
+
+  raise ValueError(f'Failed to parse {path.name}.')
+
+
 @_register_get_date('Ally')
 def _get_date_from_ally(path: pathlib.Path) -> time.struct_time:
   return time.strptime(path.name, '%b %Y Ally Bank Statement.pdf')
@@ -143,3 +159,22 @@ def _get_date_from_fidelity(path: pathlib.Path) -> time.struct_time:
 @_register_get_date('Marcus')
 def _get_date_from_marcus(path: pathlib.Path) -> time.struct_time:
   return time.strptime(path.name.split('_')[1], '%Y%m%d')
+
+
+@_register_get_date('Schwab')
+def _get_date_from_schwab(path: pathlib.Path) -> time.struct_time:
+  return _get_date_with_patterns_helper(
+      path, {
+          r'AccountStatement(\d{6})\.pdf',
+          r'BrokerageStatement(\d{6})\d+\.pdf',
+          r'BankStatement(\d{6})\d+\.pdf',
+      }, '%m%d%y')
+
+
+@_register_get_date('Wealthfront')
+def _get_date_from_wealthfront(path: pathlib.Path) -> time.struct_time:
+  return _get_date_with_patterns_helper(
+      path, {
+          r'GREEN_DOT_STATEMENT_(\d{4}-\d{2})_.*\.pdf',
+          r'STATEMENT_(\d{4}-\d{2})_.*\.pdf',
+      }, '%Y-%m')
