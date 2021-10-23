@@ -184,3 +184,9 @@ def _get_date_from_wealthfront(path: pathlib.Path) -> time.struct_time:
 def _get_date_from_wealthfront(path: pathlib.Path) -> time.struct_time:
   return _get_date_with_patterns_helper(path, {r'(\d{6}) WellsFargo\.pdf'},
                                         '%m%d%y')
+
+
+@_register_get_date('Paypal')
+def _get_date_from_paypal(path: pathlib.Path) -> time.struct_time:
+  return _get_date_with_patterns_helper(path, {r'statement-(.*-\d+)\.pdf'},
+                                        '%b-%Y')

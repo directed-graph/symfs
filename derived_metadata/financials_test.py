@@ -139,6 +139,16 @@ BUILT_IN_TEST_PARAMETERS = [
              day='14',
          ),
      )),
+    (pathlib.Path('/path/Paypal/pay/statement-Apr-2020.pdf'),
+     ext_pb2.FinancialStatement(
+         institution='Paypal',
+         account='pay',
+         date=ext_pb2.FinancialStatement.Date(
+             year='2020',
+             month='04',
+             day='01',
+         ),
+     )),
 ]
 
 ADDITIONAL_FORMATS_TEST_PARAMETERS = [
