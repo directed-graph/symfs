@@ -206,30 +206,31 @@ class FinancialsTest(parameterized.TestCase):
   """Tests for financials."""
 
   @parameterized.parameters(*BUILT_IN_TEST_PARAMETERS)
-  def test_built_in_from_statement(self, path, expected_statement):
+  def test_built_in_from_statement_path(self, path, expected_statement):
     """Ensures we get the correct FinancialStatement metadata."""
-    metadata = derived_metadata.financials.from_statement(path)
+    metadata = derived_metadata.financials.from_statement_path(path)
     statement = ext_pb2.FinancialStatement()
     metadata.data.Unpack(statement)
     self.assertEqual(statement, expected_statement)
 
   @parameterized.parameters(*ADDITIONAL_FORMATS_TEST_PARAMETERS)
-  def test_additional_formats_from_statement(self, path, additional_formats,
-                                             expected_statement):
+  def test_additional_formats_from_statement_path(self, path,
+                                                  additional_formats,
+                                                  expected_statement):
     """Ensures additional_formats are used to get FinancialStatement."""
     parameters = any_pb2.Any()
     params = ext_pb2.FinancialStatement.Parameters(
         additional_formats=additional_formats)
     parameters.Pack(params)
-    metadata = derived_metadata.financials.from_statement(path, parameters)
+    metadata = derived_metadata.financials.from_statement_path(path, parameters)
     statement = ext_pb2.FinancialStatement()
     metadata.data.Unpack(statement)
     self.assertEqual(statement, expected_statement)
 
-  def test_not_found_from_statement(self):
-    """Ensures from_statement fails when we cannot parse."""
+  def test_not_found_from_statement_path(self):
+    """Ensures from_statement_path fails when we cannot parse."""
     with self.assertRaisesRegex(ValueError, 'Unable to parse date from'):
-      derived_metadata.financials.from_statement(
+      derived_metadata.financials.from_statement_path(
           pathlib.Path('/something/something.pdf'))
 
 

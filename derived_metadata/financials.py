@@ -78,7 +78,7 @@ def _get_date(path: pathlib.Path,
   raise ValueError(f'Unable to parse date from {path.name}.')
 
 
-def from_statement(
+def from_statement_path(
     path: pathlib.Path,
     parameters: Optional[any_pb2.Any] = None) -> symfs_pb2.Metadata:
   """Returns Metadata for financial statement."""

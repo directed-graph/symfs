@@ -18,6 +18,6 @@ group_by {
 
 derived_metadata {
   item_mode: FILES
-  function_name: "derived_metadata.financials.from_statement"
+  function_name: "derived_metadata.financials.from_statement_path"
 }
 
