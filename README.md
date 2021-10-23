@@ -18,10 +18,13 @@ should work just fine (e.g. WebDAV, SMB, etc.).
 
 SymFs may be a good fit for you if most of the following are true:
 
-- You have many directories, each of which has some metadata you manage.
+- You have many directories or files ("items"), each of which has some metadata
+  you manage.
 - You want the metadata to be extensible and self-defined.
-- You want to create one or more views on top of those directories that group
-  the directories based on one or more fields in the metadata.
+- You want the option to generate the metadata on-the-fly given the path to an
+  item using a function you provide.
+- You want to create one or more views on top of those items that group the
+  items based on one or more fields, nested or not, in the metadata.
 - You want to browse the resultant views on standard applications such as
   WebDAV, SMB, etc.
 - You want this entire process to be automatable.
@@ -53,7 +56,9 @@ automate this.
 <sup>1</sup> Admittedly, this can be tedious. However, if you have a large
 collection of items to which using SymFs can be beneficial, you'd likely want
 to have some sort of metadata for your collection regardless. This is where the
-extensible proto concept can come in handy.
+extensible proto concept can come in handy. Further, you do have the option to
+generate the metadata on-the-fly using the item itself if you'd like; see
+[Extending with Derived Metadata](#extending-with-derived-metadata).
 
 
 ## Automating
@@ -97,3 +102,27 @@ library. This can also be done without changing much code, in three steps:
 
 The alternative approach may be good if you plan to keep your custom proto
 private (i.e. a parallel branch).
+
+
+## Extending with Derived Metadata
+
+In the [example](#example-configuration), the metadata files are written as
+files on a per-directory basis. However, it is possible to use SymFs to generate
+the metadata on-the-fly. This is the "Derived Metadata" feature.
+
+To use the "Derived Metadata" feature, first implement a function under
+`derived_metadata/` that takes the path to an item as well as an (optional)
+`google.protobuf.Any` proto. The return value of that function should be an
+`everchanging.symfs.Metadata` proto. We also recommend adding a test with the
+`_test.py` suffix. No need to update the `BUILD` file, as we treat the directory
+as a module.
+
+In the function, you are free to derive the metadata using the given input
+parameters.  This can be as simple as using the path string of the item, or more
+complex such as opening the item itself and then reading some content to get the
+correct metadata.
+
+Then, for your configuration, configure `everchanging.symfs.derived_metadata` to
+use your function. You can also provide additional parameters to your function
+with `everchanging.symfs.DerivedMetadata.parameters` if you need
+per-configuration parameters for your function.
