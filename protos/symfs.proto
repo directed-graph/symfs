@@ -4,7 +4,7 @@ import "google/protobuf/any.proto";
 
 package everchanging.symfs;
 
-// Describes the metadata of a particular directory.
+// Describes the metadata of a particular item.
 // Next tag: 2
 message Metadata {
   // The actual metadata is wrapped in an Any proto. The proto type used here
@@ -14,12 +14,12 @@ message Metadata {
 }
 
 // Describes how a SymFs is to be generated. A SymFs can be thought of as a
-// directory under which is a set of symlinks to other directories; what
-// symlinks are created and which directories they link to are defined in this
-// configuration and influenced by the Metadata of the underlying directories.
+// directory under which is a set of symlinks to other items; what symlinks are
+// created and which items they link to are defined in this configuration and
+// influenced by the Metadata of the underlying items.
 // Next tag: 7
 message Config {
-  // Next tag: 3
+  // Next tag: 4
   message GroupBy {
     // The name of this group. The group will be generated under a subdirectory
     // of this name under SymFs. If none is provided, then the group will be
@@ -114,7 +114,7 @@ message Config {
 
     // A Metadata proto is generated on a per-item basis. The generation is
     // done with a custom function the user will define and make accessible in
-    // `ext_lib.py`. Do not use; not implemented yet.
+    // `ext_lib.py`. See `DerivedMetadata` for more details.
     DerivedMetadata derived_metadata = 6;
   }
 }
