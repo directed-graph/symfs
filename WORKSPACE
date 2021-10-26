@@ -4,12 +4,10 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
 # grpc deps
-http_archive(
+git_repository(
     name = "com_github_grpc_grpc",
-    urls = [
-        "https://github.com/grpc/grpc/archive/ee5b762f33a42170144834f5ab7efda9d76c480b.tar.gz",
-    ],
-    strip_prefix = "grpc-ee5b762f33a42170144834f5ab7efda9d76c480b",
+    remote = "https://github.com/grpc/grpc",
+    tag = "v1.41.1",
 )
 load("@com_github_grpc_grpc//bazel:grpc_deps.bzl", "grpc_deps")
 grpc_deps()
@@ -27,7 +25,7 @@ git_repository(
 git_repository(
     name = "abseil",
     remote = "https://github.com/abseil/abseil-py",
-    tag = "pypi-v0.13.0",
+    tag = "pypi-v0.15.0",
 )
 # Dependencies taken from @abseil//WORKSPACE.
 http_archive(
@@ -49,13 +47,4 @@ http_archive(
     sha256 = "b839dd2d9c117c701430c149956918a423a9863b48b09c90e30a6013e7d2f44f",
     strip_prefix = "mock-1.0.1",
     build_file = "@abseil//third_party:mock.BUILD",
-)
-http_archive(
-    name = "enum34_archive",
-    urls = [
-        "https://mirror.bazel.build/pypi.python.org/packages/bf/3e/31d502c25302814a7c2f1d3959d2a3b3f78e509002ba91aea64993936876/enum34-1.1.6.tar.gz",
-        "https://pypi.python.org/packages/bf/3e/31d502c25302814a7c2f1d3959d2a3b3f78e509002ba91aea64993936876/enum34-1.1.6.tar.gz"
-        ],
-    sha256 = "8ad8c4783bf61ded74527bffb48ed9b54166685e4230386a9ed9b1279e2df5b1",
-    build_file = "@abseil//third_party:enum34.BUILD"
 )
