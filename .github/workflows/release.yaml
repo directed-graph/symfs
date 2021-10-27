@@ -45,3 +45,32 @@ jobs:
           artifacts: 'bazel-bin/symfs.par'
           tag: ${{ needs.metadata.outputs.release_name }}
           token: ${{ secrets.GITHUB_TOKEN }}
+
+  docker:
+    needs: metadata
+    runs-on: ubuntu-latest
+    if: ${{ needs.metadata.outputs.should_release == 'yes' }}
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: docker/setup-buildx-action@v1
+
+      - uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: |
+            implementing/symfs:latest
+            implementing/symfs:${{ needs.metadata.outputs.release_name }}
+            ghcr.io/directed-graph/symfs:latest
+            ghcr.io/directed-graph/symfs:${{ needs.metadata.outputs.release_name }}
