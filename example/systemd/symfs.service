@@ -1,8 +1,0 @@
-[Unit]
-Description=SymFs job to generate SymFs
-
-[Service]
-Environment="SYMFS_CONFIG_FILE=REPLACE_ME"
-Type=oneshot
-ExecStart=/usr/local/bin/everchanging/symfs.par --config_file ${SYMFS_CONFIG_FILE}
-User=REPLACE_ME

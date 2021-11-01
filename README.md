@@ -111,20 +111,50 @@ your environment, the general idea is as follows:
 
 ## Automating
 
-There are various ways to automate. In this section, we will go over a small
-example on automating with systemd. We have provided
-[symfs.service](./example/systemd/symfs.service) and
-[symfs.timer](./example/systemd/symfs.timer) that you can build on top of to
-automate.  You can place these files anywhere in the [systemd search
-path](https://www.freedesktop.org/software/systemd/man/systemd.unit.html). One
-example is `/usr/local/lib/systemd/system/`.
+There are various ways to automate. In this section, we will discuss the
+packaged approach with `systemd` to configure, run, and automate. This section
+assumes you have [installed](#installing) SymFs as documented. As packaged, we
+provide the `symfs@.service` and `symfs@.timer` templates. The template
+parameter is the full path to the SymFs configuration file, which will be
+passed to the SymFs binary via the `--config_file` flag. If you wish to add
+additional flags, you may do so by adding to the `${SYMFS_ARGUMENTS}`
+environment variable:
 
-If you don't have any major customization needed, the `symfs.timer` can be
-copied without modification (it will automatically trigger SymFs to run once a
-day). For the given `symfs.service`, you need to update `Environment=` and
-`User=` to something that is appropriate for you (change the `REPLACE_ME`
-part). Then, simply write your `everchanging.symfs.Config` configuration
-textproto to where you set it in `Environment=` and you are good to go!
+    systemctl --user edit symfs@.service
+
+Then, you can start the job with the following:
+
+    systemctl --user start symfs@$(systemd-escape ${config_path}).service
+
+And check the status/logs with:
+
+    systemctl --user status symfs@$(systemd-escape ${config_path}).service
+
+For automating, the simplest way is to create a timer that encodes the path. For
+example:
+
+    systemctl --user enable --now symfs@$(systemd-escape ${config_path}).timer
+
+However, if you have many configurations you'd like to run, it may be more
+efficient to do everything from a single unit. One way to do this is to override
+the `ExecCondition` and `ExecStart` for a custom unit. For example:
+
+    systemctl --user edit symfs@${custom_name}.service
+
+And then override `ExecCondition` and `ExecStart` with the following:
+
+    [Service]
+    ExecCondition=
+    ExecStart=
+    ExecCondition=test -f ${path_0}
+    ExecStart=symfs.par ${SYMFS_ARGUMENTS} --config_file ${path_0}
+    ExecCondition=test -f ${path_1}
+    ExecStart=symfs.par ${SYMFS_ARGUMENTS} --config_file ${path_1}
+    ...
+
+Then, you can create a timer for _that_ service:
+
+    systemctl --user enable --now symfs@${custom_name}.timer
 
 
 ## How to Extend
