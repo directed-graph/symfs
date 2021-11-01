@@ -75,7 +75,12 @@ dependencies installed on your system.
 
     git clone https://aur.archlinux.org/symfs-git.git
     cd symfs-git
+
+    # If running rootful Docker.
     ./docker_build.bash
+
+    # If running rootless Docker.
+    ROOTLESS=yes ./docker_build.bash
 
     # For Archlinux.
     sudo pacman -U symfs-git-...pkg.tar.zst
