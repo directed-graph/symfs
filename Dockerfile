@@ -8,7 +8,7 @@ COPY . .
 RUN bazel build :symfs.par && \
     bazel test --test_output=all :all && \
     mkdir -p /usr/local/bin/everchanging && \
-    cp bazel-bin/symfs.par /usr/local/bin/everchanging/symfs.par && \
+    cp bazel-bin/symfs.par /usr/local/bin/symfs.par && \
     bazel clean
 
-ENTRYPOINT ["/usr/local/bin/everchanging/symfs.par"]
+ENTRYPOINT ["/usr/local/bin/symfs.par"]
