@@ -1,0 +1,8 @@
+[Unit]
+Description=SymFs job to generate SymFs for %I
+
+[Service]
+Environment="SYMFS_CONFIG=%I"
+Type=oneshot
+ExecCondition=test -f ${SYMFS_CONFIG}
+ExecStart=symfs.par ${SYMFS_ARGUMENTS} --config_file ${SYMFS_CONFIG}
