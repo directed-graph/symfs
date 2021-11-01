@@ -61,6 +61,54 @@ generate the metadata on-the-fly using the item itself if you'd like; see
 [Extending with Derived Metadata](#extending-with-derived-metadata).
 
 
+## Installing
+
+There are various ways to install. We list a few here.
+
+### AUR makepkg
+
+While targeted towards Arch Linux, this approach is a good balance between
+[Directed Download](#direct-download) and [Manual](#manual) in that you can
+build the binaries locally (instead of downloading pre-built binaries), while
+also not having to manually run build commands nor have any of the build
+dependencies installed on your system.
+
+    git clone https://aur.archlinux.org/symfs-git.git
+    cd symfs-git
+    ./docker_build.bash
+
+    # For Archlinux.
+    sudo pacman -U symfs-git-...pkg.tar.zst
+
+    # For other distributions.
+    tar -xf symfs-git-...pkg.tar.zst
+    # Then move the files as appropriate; see Direct Download for details.
+
+### Direct Download
+
+Go to the [latest
+release](https://github.com/directed-graph/symfs/releases/latest) and download
+the `symfs.par` binary. We also recommend downloading `symfs@.*` `systemd`
+template files.
+
+While you can install the items anywhere you want, the general best practice is
+to put the `symfs.par` binary in `/usr/local/bin` and the `systemd` template
+files in `/usr/local/lib/systemd/user`.
+
+### Manual
+
+This is the fully manual way in which you download, build, and move files
+manually to the appropriate locations. While this may be different depending on
+your environment, the general idea is as follows:
+
+    git clone https://github.com/directed-graph/symfs.git
+    cd symfs
+    bazel build :symfs.par
+    bazel test :all  # Optional.
+    sudo cp bazel-bin/symfs.par /usr/local/bin
+    sudo cp install/systemd/* /usr/local/lib/systemd/user
+
+
 ## Automating
 
 There are various ways to automate. In this section, we will go over a small
