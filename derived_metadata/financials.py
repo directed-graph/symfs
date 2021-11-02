@@ -65,7 +65,7 @@ def _get_date(path: pathlib.Path,
     logging.warning(
         'No _get_date defined for %s; trying with additional_formats.',
         institution)
-  except ValueError:
+  except (AttributeError, ValueError):
     logging.warning(
         'Failed to parse %s for %s; trying with additional_formats.',
         institution, path.name)
@@ -133,28 +133,27 @@ def _get_date_from_ally(path: pathlib.Path) -> time.struct_time:
 
 @_register_get_date('Chase')
 def _get_date_from_chase(path: pathlib.Path) -> time.struct_time:
-  return time.strptime(
-      re.match(r'(\d+)-statements-x?\d+-\.pdf', path.name).group(1), '%Y%m%d')
+  return _get_date_with_patterns_helper(path, {r'(\d+)-statements-x?\d+-\.pdf'},
+                                        '%Y%m%d')
 
 
 @_register_get_date('Discover')
 def _get_date_from_discover(path: pathlib.Path) -> time.struct_time:
-  return time.strptime(
-      re.match(r'Discover-Statement-(\d+)-\d+\.pdf', path.name).group(1),
-      '%Y%m%d')
+  return _get_date_with_patterns_helper(path,
+                                        {r'Discover-Statement-(\d+)-\d+\.pdf'},
+                                        '%Y%m%d')
 
 
 @_register_get_date('ETrade')
 def _get_date_from_etrade(path: pathlib.Path) -> time.struct_time:
-  return time.strptime(
-      re.match(r'Brokerage Statement - XXXX\d{4} - (\d+)\.pdf',
-               path.name).group(1), '%Y%m')
+  return _get_date_with_patterns_helper(
+      path, {r'Brokerage Statement - XXXX\d{4} - (\d+)\.pdf'}, '%Y%m')
 
 
 @_register_get_date('Fidelity')
 def _get_date_from_fidelity(path: pathlib.Path) -> time.struct_time:
-  return time.strptime(
-      re.match(r'Statement(\d+)\.pdf', path.name).group(1), '%m%d%Y')
+  return _get_date_with_patterns_helper(path, {r'Statement(\d+)\.pdf'},
+                                        '%m%d%Y')
 
 
 @_register_get_date('Marcus')
