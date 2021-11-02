@@ -225,8 +225,8 @@ class SymFs:
           try:
             yield item, derived_metadata_function(item)
           except (AttributeError, ValueError) as error:
-            logging.warning('Failed to derive Metadata: %s; skipping %s.',
-                            error, item)
+            logging.error('Failed to derive Metadata: %s; skipping %s.', error,
+                          item)
           else:
             yielded = True
       if not yielded:
@@ -270,14 +270,12 @@ class SymFs:
           except StopIteration:
             break
           except AttributeError as error:
-            logging.warning(
-                '%s: no such field in message type %s; skipping %s.', error,
-                metadata.data.TypeName(), path)
+            logging.error('%s: no such field in message type %s; skipping %s.',
+                          error, metadata.data.TypeName(), path)
             continue
           except TypeError as error:
-            logging.warning(
-                '%s: the sub-field in %s is not scalar; skipping %s.', error,
-                metadata.data.TypeName(), path)
+            logging.error('%s: the sub-field in %s is not scalar; skipping %s.',
+                          error, metadata.data.TypeName(), path)
             continue
 
           try:

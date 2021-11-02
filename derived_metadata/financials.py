@@ -62,18 +62,19 @@ def _get_date(path: pathlib.Path,
   try:
     return _GET_DATE_BY_INSTITUTION[institution](path)
   except KeyError:
-    logging.error(
+    logging.warning(
         'No _get_date defined for %s; trying with additional_formats.',
         institution)
   except ValueError:
-    logging.error('Failed to parse %s for %s; trying with additional_formats.',
-                  institution, path.name)
+    logging.warning(
+        'Failed to parse %s for %s; trying with additional_formats.',
+        institution, path.name)
 
   for additional_format in additional_formats:
     try:
       return time.strptime(path.name, additional_format)
     except ValueError:
-      logging.error('Unable to parse with "%s".', additional_format)
+      logging.warning('Unable to parse with "%s".', additional_format)
 
   raise ValueError(f'Unable to parse date from {path.name}.')
 
@@ -119,8 +120,8 @@ def _get_date_with_patterns_helper(path: pathlib.Path,
     try:
       return time.strptime(re.match(pattern, path.name).group(1), date_format)
     except (AttributeError, ValueError) as error:
-      logging.error('Unable to parse %s with %s: %s.', path.name, pattern,
-                    error)
+      logging.warning('Unable to parse %s with %s: %s.', path.name, pattern,
+                      error)
 
   raise ValueError(f'Failed to parse {path.name}.')
 
