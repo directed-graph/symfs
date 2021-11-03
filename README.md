@@ -50,8 +50,8 @@ Note that for the purposes of this example, we are using relative paths in the
 configuration; this is generally not supported and may cause broken links.
 However, the purpose of this example is to demonstrate setup and usage, so we
 will ignore that for now. After running the command, the
-[views](./example/views) will be generated. See the next section on how you can
-automate this.
+[views](./example/views) will be generated. See [Automating](#automating) on
+how you can automate this.
 
 <sup>1</sup> Admittedly, this can be tedious. However, if you have a large
 collection of items to which using SymFs can be beneficial, you'd likely want
@@ -59,6 +59,29 @@ to have some sort of metadata for your collection regardless. This is where the
 extensible proto concept can come in handy. Further, you do have the option to
 generate the metadata on-the-fly using the item itself if you'd like; see
 [Extending with Derived Metadata](#extending-with-derived-metadata).
+
+
+## Building
+
+If you just want to build the binary without installing any dependencies, then
+you can do so via [AUR makepkg](#aur-makepkg). On the other hand, if you want
+to build for the purposes of development, then you can do so via
+[bazel](https://bazel.build) or Docker.
+
+If you have bazel, you can build by simply running:
+
+```
+bazel build :symfs.par
+```
+
+If you want to use Docker, you can build with the following:
+
+```
+docker build .
+```
+
+Note that the Dockerfile we have set up is not meant for development, as it
+does not take advantage of incremental builds provided by bazel.
 
 
 ## Installing
