@@ -46,17 +46,23 @@ py_library(
     ],
 )
 
-py_test(
-    name = "derived_metadata/financials_test",
-    srcs = ["derived_metadata/financials_test.py"],
-    python_version = "PY3",
-    deps = [
-        ":derived_metadata_lib",
-        ":ext_py_proto",
-        "@abseil//absl/testing:absltest",
-        "@abseil//absl/testing:parameterized",
-    ],
-)
+# Generates "derived_metadata/<module>" targets for all tests defined under
+# derived_metadata. Note that this can potentially include dependencies that
+# are not needed for some tests.
+[
+    py_test(
+        name = module[:-3],
+        srcs = [module],
+        python_version = "PY3",
+        deps = [
+            ":derived_metadata_lib",
+            ":ext_py_proto",
+            "@abseil//absl/testing:absltest",
+            "@abseil//absl/testing:parameterized",
+        ],
+    )
+    for module in glob(["derived_metadata/*_test.py"])
+]
 
 py_library(
     name = "ext_lib",
