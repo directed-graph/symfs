@@ -62,7 +62,7 @@ message Config {
     repeated string patterns = 1;
   }
 
-  // Next tag: 4
+  // Next tag: 5
   message DerivedMetadata {
     // Next tag: 3
     enum ItemMode {
@@ -81,15 +81,29 @@ message Config {
     // Which items to derive metadata for.
     ItemMode item_mode = 1;
 
-    // The fully-qualified custom function name (including module(s)). The
-    // function should take a pathlib.Path object and an Any proto. The output
-    // should be a Metadata proto. This function should be made accessible in
-    // `ext_lib.py`. The simplest way is to add a new file or modify an
-    // existing file in the `derived_metadata/` directory.
-    string function_name = 2;
+    // The fully-qualified custom function or class name (including module(s)).
+    //
+    // Use functions for stateless logic, and classes for stateful logic. The
+    // function or class should be made accessible in `ext_lib.py`.  The
+    // simplest way is to add a new file or modify an existing file in the
+    // `derived_metadata/` directory.
+    //
+    // If this is a function, the function should take a pathlib.Path object
+    // and an Any proto. The Any proto is defined in the `parameters` field.
+    // The output should be a Metadata proto.
+    //
+    // If this is a class, it should subclass `AbstractDerivedMetadata` and
+    // implement the `derive` method. The `parameters` field will be passed in
+    // during the construction of the object. The child class will need to
+    // provide the actual proto type to store the `parameters`, however.  See
+    // `derived_metadata.AbstractDerivedMetadata` for more details.
+    string derivation_name = 4;
 
-    // Parameters given to the custom function.
+    // Parameters given to the custom function or class.
     google.protobuf.Any parameters = 3;
+
+    // Deprecated; see derivation_name.
+    string function_name = 2 [deprecated = true];
   }
 
   // The path under which to create the SymFs. Must be absolute path.

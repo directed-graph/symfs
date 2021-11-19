@@ -47,7 +47,8 @@ message Media {
 // A generic message for financial statements.
 // Next tag: 4
 message FinancialStatement {
-  // For use in everchanging.symfs.Config.DerivedMetadata.parameters.
+  // For use with derived_metadata.financials.from_statement_path in
+  // everchanging.symfs.Config.DerivedMetadata.parameters.
   message Parameters {
     // Additional formats passed to time.strptime to try if parsing fails.
     repeated string additional_formats = 1;
