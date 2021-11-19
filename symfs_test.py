@@ -85,7 +85,7 @@ EXPECTED_FROM_STATEMENTS_MAPPING: symfs.GroupToKeyToPathMapping = {
 }
 
 
-def mock_derived_metadata_function(
+def mock_derived_metadata_derivation(
     path: Path, parameters: any_pb2.Any) -> symfs_pb2.Metadata:
   """Mock custom derived metadata function.
 
@@ -327,13 +327,13 @@ class SymFsTest(parameterized.TestCase):
 
     # This will automatically overwrite the oneof.
     config.derived_metadata.item_mode = symfs_pb2.Config.DerivedMetadata.ItemMode.FILES
-    config.derived_metadata.function_name = 'the.function.name'
+    config.derived_metadata.derivation_name = 'the.function.name'
     config.derived_metadata.parameters.CopyFrom(test_parameters)
 
     with mock.patch.object(
-        ext_lib, 'get_derived_metadata_function',
-        autospec=True) as mock_get_derived_metadata_function:
-      mock_get_derived_metadata_function.return_value = mock_derived_metadata_function
+        ext_lib, 'get_derived_metadata_derivation',
+        autospec=True) as mock_get_derived_metadata_derivation:
+      mock_get_derived_metadata_derivation.return_value = mock_derived_metadata_derivation
 
       # We will just check the first metadata, as the mock custom function does
       # not do anything special other than add the path to Metadata.data.
@@ -353,12 +353,12 @@ class SymFsTest(parameterized.TestCase):
 
     # This will automatically overwrite the oneof.
     config.derived_metadata.item_mode = symfs_pb2.Config.DerivedMetadata.ItemMode.FILES
-    config.derived_metadata.function_name = 'the.function.name'
+    config.derived_metadata.derivation_name = 'the.function.name'
 
     with mock.patch.object(
-        ext_lib, 'get_derived_metadata_function',
-        autospec=True) as mock_get_derived_metadata_function:
-      mock_get_derived_metadata_function.return_value = mock_derived_metadata_function
+        ext_lib, 'get_derived_metadata_derivation',
+        autospec=True) as mock_get_derived_metadata_derivation:
+      mock_get_derived_metadata_derivation.return_value = mock_derived_metadata_derivation
 
       with tempfile.TemporaryDirectory() as no_files_path:
         pathlib.Path(f'{no_files_path}/test').mkdir()

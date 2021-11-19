@@ -1,7 +1,7 @@
 # This library should import all extension protos used by symfs.
 
 from types import ModuleType
-from typing import Any, Callable, Iterable, Iterator, Optional
+from typing import Any, Callable, Iterable, Iterator, Optional, Union
 
 import pathlib
 
@@ -23,6 +23,11 @@ import symfs_pb2
 _EXT_PROTO_MODULES = {
     ext_pb2,
 }
+
+DerivedMetadataFunction = Callable[[pathlib.Path, any_pb2.Any],
+                                   symfs_pb2.Metadata]
+DerivedMetadataClass = derived_metadata.abstract_derived_metadata.AbstractDerivedMetadata
+Derivation = Union[DerivedMetadataFunction, DerivedMetadataClass]
 
 
 def get_prototype(
@@ -51,18 +56,18 @@ def get_prototype(
   raise KeyError(f'Unable to find message {type_name}.')
 
 
-def get_derived_metadata_function(
-    name: str) -> Callable[[pathlib.Path, any_pb2.Any], symfs_pb2.Metadata]:
-  """Get function given the name and an optional module.
+def get_derived_metadata_derivation(name: str) -> Derivation:
+  """Get function or class given the name.
 
   Args:
-    name: The fully-qualified name of the function (including module(s)).
+    name: The fully-qualified name of the function/class (including module(s)).
 
   Returns:
-    A function that takes in a string (file/directory path) and an Any proto.
+    A function that takes in a string (file/directory path) and an Any proto or
+    a child class of AbstractDerivedMetadata.
   """
-  function = globals()[name.split('.')[0]]
+  derivation = globals()[name.split('.')[0]]
   for partial_name in name.split('.')[1:]:
-    function = getattr(function, partial_name)
+    derivation = getattr(derivation, partial_name)
 
-  return function
+  return derivation

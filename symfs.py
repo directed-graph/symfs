@@ -199,7 +199,7 @@ class SymFs:
     """Yields tuples of items and derived metadata based on config.
 
     As documented in `symfs.proto` for `Config.derived_metadata`, a custom
-    function must be specified. Depending on `item_mode`, the file/directory
+    derivation must be specified. Depending on `item_mode`, the file/directory
     will be passed to the custom function, along with the custom `parameters`
     proto, if provided.
 
@@ -209,10 +209,14 @@ class SymFs:
     Yields:
       Tuples of items and associated metadata for that item.
     """
-    derived_metadata_function = functools.partial(
-        ext_lib.get_derived_metadata_function(
-            self.config.derived_metadata.function_name),
-        parameters=self.config.derived_metadata.parameters)
+    derivation = ext_lib.get_derived_metadata_derivation(
+        self.config.derived_metadata.derivation_name)
+    if isinstance(derivation, ext_lib.DerivedMetadataClass):
+      derive = derivation(self.config.derived_metadata.parameters).derive
+    else:
+      derive = functools.partial(
+          derivation, parameters=self.config.derived_metadata.parameters)
+
     ItemMode = symfs_pb2.Config.DerivedMetadata.ItemMode
 
     for source_path in self.config.source_paths:
@@ -223,7 +227,7 @@ class SymFs:
             (self.config.derived_metadata.item_mode
              in (ItemMode.ALL, ItemMode.DIRECTORIES) and item.is_dir())):
           try:
-            yield item, derived_metadata_function(item)
+            yield item, derive(item)
           except (AttributeError, ValueError) as error:
             logging.error('Failed to derive Metadata: %s; skipping %s.', error,
                           item)
