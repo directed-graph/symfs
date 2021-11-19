@@ -34,12 +34,27 @@ py_proto_library(
 )
 
 py_library(
+    name = "derived_metadata/abstract_derived_metadata",
+    srcs = [
+        "derived_metadata/abstract_derived_metadata.py",
+    ],
+    deps = [
+        ":symfs_py_proto",
+        "@com_github_protocolbuffers_protobuf//:protobuf_python",
+    ],
+)
+
+py_library(
     name = "derived_metadata_lib",
     srcs = glob(
         ["derived_metadata/*.py"],
-        exclude = ["derived_metadata/*_test.py"],
+        exclude = [
+            "derived_metadata/abstract_derived_metadata.py",
+            "derived_metadata/*_test.py",
+        ],
     ),
     deps = [
+        ":derived_metadata/abstract_derived_metadata",
         ":ext_py_proto",
         ":symfs_py_proto",
         "@abseil//absl/logging",
