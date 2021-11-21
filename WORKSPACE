@@ -48,3 +48,12 @@ http_archive(
     strip_prefix = "mock-1.0.1",
     build_file = "@abseil//third_party:mock.BUILD",
 )
+
+# protobuf dependencies (specifically GeneratedProtocolMessageType)
+git_repository(
+    name = "com_github_protocolbuffers_protobuf",
+    remote = "https://github.com/protocolbuffers/protobuf",
+    tag = "v3.19.1",
+)
+load("@com_github_protocolbuffers_protobuf//:protobuf_deps.bzl", "protobuf_deps")
+protobuf_deps()

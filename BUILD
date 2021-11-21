@@ -71,6 +71,7 @@ py_library(
         ":derived_metadata_lib",
         ":ext_py_proto",
         ":symfs_py_proto",
+        "@com_github_protocolbuffers_protobuf//:protobuf_python",
     ],
 )
 
