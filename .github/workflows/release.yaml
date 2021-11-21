@@ -30,20 +30,24 @@ jobs:
   release:
     needs: metadata
     runs-on: ubuntu-latest
+    container:
+      image: implementing/builder:latest
+      volumes:
+        - /bazel/cache/symfs:/mnt/cache
     if: ${{ needs.metadata.outputs.should_release == 'yes' }}
     steps:
-      - uses: bazelbuild/setup-bazelisk@v1
-
       - uses: actions/checkout@v2
 
-      - run: bazel build :symfs.par
+      - run: bazel test -c opt --test_output=all :all
 
-      - run: bazel test --test_output=all :all
+      - run: bazel build -c opt :symfs.par
 
       - uses: ncipollo/release-action@v1
         with:
           artifacts: 'bazel-bin/symfs.par,install/systemd/*'
+          body: ""
           omitBody: true
+          omitBodyDuringUpdate: true
           tag: ${{ needs.metadata.outputs.release_name }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
