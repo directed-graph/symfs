@@ -8,6 +8,7 @@ import pathlib
 
 from google.protobuf import any_pb2
 from google.protobuf import message
+from google.protobuf.pyext.cpp_message import GeneratedProtocolMessageType
 
 import derived_metadata
 import ext_pb2
@@ -20,7 +21,7 @@ _EXT_PROTO_MODULES = {
 
 def get_prototype(
     type_name: str,
-    include_modules: Optional[Iterable] = None) -> message.Message:
+    include_modules: Optional[Iterable] = None) -> GeneratedProtocolMessageType:
   """Get prototype given the name.
 
   Args:
