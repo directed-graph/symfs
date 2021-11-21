@@ -71,17 +71,23 @@ to build for the purposes of development, then you can do so via
 If you have bazel, you can build by simply running:
 
 ```
-bazel build :symfs.par
+bazel build --define use_fast_cpp_protos=true :symfs.par
 ```
+
+The `--define` flag is important if you do not have
+[Protobuf](https://github.com/protocolbuffers/protobuf#protocol-compiler-installation)
+installed. Otherwise, you can omit that flag.
 
 If you want to use Docker, you can build with the following:
 
 ```
-docker build .
+./builder.bash [<bazel args>]
 ```
 
-Note that the Dockerfile we have set up is not meant for development, as it
-does not take advantage of incremental builds provided by bazel.
+The Docker image makes use of
+[`implementing/builder`](https://github.com/directed-graph/dockerfiles/pkgs/container/builder),
+which provides the ability to take advantage of incremental builds provided by
+bazel. See `builder.bash` for more details on configuring.
 
 
 ## Installing
@@ -135,6 +141,8 @@ your environment, the general idea is as follows:
     bazel test :all  # Optional.
     sudo cp bazel-bin/symfs.par /usr/local/bin
     sudo cp install/systemd/* /usr/local/lib/systemd/user
+
+Main dependencies include Bazel and Protobuf.
 
 
 ## Automating
