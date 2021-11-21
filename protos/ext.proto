@@ -69,3 +69,29 @@ message FinancialStatement {
   // The statement date
   Date date = 3;
 }
+
+// A generic message for holding values.
+// Next tag: 2
+message GenericValues {
+  // For use with derived_metadata.generic_values.FixedGrouping in
+  // everchanging.symfs.Config.DerivedMetadata.parameters.
+  //
+  // Each item will be put into one or more groups, determined by the `number`
+  // field. Each group will be of similar size (maximal difference of 1 item).
+  //
+  // Next tag: 4
+  message FixedGroupingParameters {
+    // The number of groups in total. Defaults to 10.
+    int64 num_groups = 1;
+
+    // The number of groups each item should belong to. Defaults to 1.
+    int64 per_group = 2;
+
+    // Whether or not to randomize the grouping. Note that even if this is
+    // false, the grouping will depend on the order of the items scanned, which
+    // is not necessarily deterministic.
+    bool random = 3;
+  }
+
+  repeated int64 numbers = 1;
+}
