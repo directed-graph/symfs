@@ -9,8 +9,8 @@ WORKDIR /github/directed-graph/symfs
 # Actual items are based on what's defined in .dockerignore.
 COPY . .
 
-RUN bazel build :symfs.par && \
-    bazel test --test_output=all :all && \
+RUN bazel test -c opt --test_output=all :all && \
+    bazel build -c opt :symfs.par && \
     mkdir -p /usr/local/bin && \
     cp bazel-bin/symfs.par /usr/local/bin/symfs.par && \
     bazel clean
