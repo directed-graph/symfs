@@ -1,14 +1,20 @@
 # This library should import all extension protos used by symfs.
 
 from types import ModuleType
-from typing import Callable, Iterable, Iterator, Optional
+from typing import Any, Callable, Iterable, Iterator, Optional
 
-import logging
 import pathlib
 
+from absl import logging
 from google.protobuf import any_pb2
 from google.protobuf import message
-from google.protobuf.pyext.cpp_message import GeneratedProtocolMessageType
+
+try:
+  from google.protobuf.pyext.cpp_message import GeneratedProtocolMessageType
+except ImportError:
+  GeneratedProtocolMessageType = Any
+  logging.info(
+      'Not using the real GeneratedProtocolMessageType; using Any instead.')
 
 import derived_metadata
 import ext_pb2
