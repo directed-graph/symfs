@@ -8,7 +8,7 @@
 #
 # Set HOST_CACHE_DIR environment variable to change location of the cache for
 # incremental builds. Set USE_CACHE to no to not use cache. If USE_CACHE is
-# set, do not set the --output_base argument.
+# set, the --output_base argument will be set automatically.
 
 USE_CACHE="${USE_CACHE:-yes}"
 HOST_CACHE_DIR="${HOST_CACHE_DIR:-${HOME}/.cache/bazel/symfs}"
