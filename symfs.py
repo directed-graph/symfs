@@ -141,6 +141,9 @@ def generate_groups(message: message.Message, fields: Iterable[str],
 
 def clear_symlinks(path: pathlib.Path) -> None:
   """Deletes everything in path; raises if non-symlinks found."""
+  if not path.exists():
+    return
+
   for item in path.rglob('*'):
     if not item.is_symlink() and not item.is_dir():
       raise TypeError(
