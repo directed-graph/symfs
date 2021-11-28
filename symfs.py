@@ -6,6 +6,7 @@ import os
 import pathlib
 import pprint
 import re
+import shutil
 
 from absl import app
 from absl import flags
@@ -138,6 +139,16 @@ def generate_groups(message: message.Message, fields: Iterable[str],
           combinations_cache=combinations_cache)
 
 
+def clear_symlinks(path: pathlib.Path) -> None:
+  """Deletes everything in path; raises if non-symlinks found."""
+  for item in path.rglob('*'):
+    if not item.is_symlink() and not item.is_dir():
+      raise TypeError(
+          f'Refusing to clear a non-directory or non-symlink item: {item}.')
+
+  shutil.rmtree(path)
+
+
 class SymFs:
   """Class to generate items based on the given SymFs config.
 
@@ -171,6 +182,9 @@ class SymFs:
                         path)
 
     self.paths_by_keys_by_group: GroupToKeyToPathMapping = {}
+
+    if self.config.clear:
+      clear_symlinks(pathlib.Path(self.config.path))
 
   def _scan_metadata_files(
       self) -> Iterator[Tuple[pathlib.Path, symfs_pb2.Metadata]]:

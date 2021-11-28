@@ -224,6 +224,67 @@ class SymFsTest(parameterized.TestCase):
         set(symfs.generate_groups(message, fields, max_repeated_group)),
         expected_output)
 
+  def test_clear(self):
+    """Ensures the clear functionality clears everything."""
+    f_0 = tempfile.NamedTemporaryFile()
+    with tempfile.TemporaryDirectory() as path_str:
+      path = pathlib.Path(path_str)
+      (path / 'a').symlink_to(f_0.name)
+      (path / 'dir' / 'dir').mkdir(parents=True)
+      (path / 'dir' / 'a').symlink_to(f_0.name)
+      (path / 'dir' / 'dir' / 'b').symlink_to(f_0.name)
+      self.assertTrue(path.exists())
+      self.assertTrue((path / 'a').exists())
+      self.assertTrue((path / 'dir' / 'a').exists())
+      self.assertTrue((path / 'dir' / 'dir' / 'b').exists())
+      symfs.clear_symlinks(path)
+      self.assertFalse(path.exists())
+
+  def test_clear_non_symlink(self):
+    """Ensures the clear functionality refuses to clear top-level file."""
+    f_0 = tempfile.NamedTemporaryFile()
+    with tempfile.TemporaryDirectory() as path_str:
+      f_1 = tempfile.NamedTemporaryFile(dir=path_str)
+      path = pathlib.Path(path_str)
+      (path / 'test').symlink_to(f_0.name)
+      with self.assertRaisesRegex(
+          TypeError,
+          f'Refusing to clear a non-directory or non-symlink item: {f_1.name}'):
+        symfs.clear_symlinks(path)
+
+  def test_clear_non_symlink(self):
+    """Ensures the clear functionality refuses to clear nested file."""
+    f_0 = tempfile.NamedTemporaryFile()
+    with tempfile.TemporaryDirectory() as path_str:
+      path = pathlib.Path(path_str)
+      directory = path / 'test' / 'a'
+      directory.mkdir(parents=True)
+      f_1 = tempfile.NamedTemporaryFile(dir=directory)
+      with self.assertRaisesRegex(
+          TypeError,
+          f'Refusing to clear a non-directory or non-symlink item: {f_1.name}'):
+        symfs.clear_symlinks(path)
+
+  def test_symfs_calls_clear(self):
+    """Ensures SymFs will call clear when specified."""
+    with tempfile.TemporaryDirectory() as path_str:
+      config = symfs_pb2.Config(path=path_str, clear=True)
+      with mock.patch.object(
+          symfs, 'clear_symlinks', autospec=True) as mock_clear:
+        symfs.SymFs(config)
+
+    mock_clear.assert_called()
+
+  def test_symfs_does_not_call_clear(self):
+    """Ensures SymFs will call clear when specified."""
+    with tempfile.TemporaryDirectory() as path_str:
+      config = symfs_pb2.Config(path=path_str, clear=False)
+      with mock.patch.object(
+          symfs, 'clear_symlinks', autospec=True) as mock_clear:
+        symfs.SymFs(config)
+
+    mock_clear.assert_not_called()
+
   def test_symfs_checks_path(self):
     """Ensures SymFs checks if path is set."""
     config = symfs_pb2.Config()
