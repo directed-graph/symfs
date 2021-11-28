@@ -231,7 +231,8 @@ class SymFs:
     """
     derivation = ext_lib.get_derived_metadata_derivation(
         self.config.derived_metadata.derivation_name)
-    if isinstance(derivation, ext_lib.DerivedMetadataClass):
+    if isinstance(derivation, type) and issubclass(
+        derivation, ext_lib.DerivedMetadataClass):
       derive = derivation(self.config.derived_metadata.parameters).derive
     else:
       derive = functools.partial(
