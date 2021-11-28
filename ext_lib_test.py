@@ -27,7 +27,10 @@ class ExtLibTest(parameterized.TestCase):
 
   @parameterized.parameters(
       ('derived_metadata.financials.from_statement_path',
-       derived_metadata.financials.from_statement_path),)
+       derived_metadata.financials.from_statement_path),
+      ('derived_metadata.generic_values.FixedGrouping',
+       derived_metadata.generic_values.FixedGrouping),
+  )
   def test_get_derived_metadata_derivation(self, name, expected_derivation):
     """Ensures we get the correct function."""
     self.assertEqual(
