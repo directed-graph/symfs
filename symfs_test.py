@@ -224,6 +224,12 @@ class SymFsTest(parameterized.TestCase):
         set(symfs.generate_groups(message, fields, max_repeated_group)),
         expected_output)
 
+  def test_symfs_checks_path(self):
+    """Ensures SymFs checks if path is set."""
+    config = symfs_pb2.Config()
+    with self.assertRaisesRegex(ValueError, 'The path field must be set.'):
+      symfs.SymFs(config)
+
   @parameterized.named_parameters(
       ('metadata_files', TEST_CONFIG_FILE, [('by_m', ['m.value'])
                                            ], TEST_DATA_DIR, EXPECTED_MAPPING),

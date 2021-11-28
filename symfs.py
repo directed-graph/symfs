@@ -152,6 +152,9 @@ class SymFs:
     """Initializes the SymFs object and set defaults."""
     self.config = config
 
+    if not self.config.path:
+      raise ValueError('The path field must be set.')
+
     if self.config.metadata_file_patterns:
       logging.warning('Config.metadata_file_patterns is deprecated; '
                       'copying to Config.metadata_files.')
