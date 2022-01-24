@@ -207,6 +207,7 @@ class SymFs:
         if item.is_file() and any(
             re.match(pattern, item.name)
             for pattern in self.config.metadata_files.patterns):
+          logging.debug('Processing %s.', item)
           metadata = symfs_pb2.Metadata()
           text_format.Parse(item.read_text(), metadata)
           yielded = True
