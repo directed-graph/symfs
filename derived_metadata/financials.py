@@ -113,15 +113,16 @@ def _register_get_date(
   return _register_get_date_by_institution
 
 
-def _get_date_with_patterns_helper(path: pathlib.Path,
-                                   regex_patterns: Iterable[str],
-                                   date_format: str) -> time.struct_time:
+def _get_date_with_patterns_helper(
+    path: pathlib.Path, regex_patterns: Iterable[str],
+    date_formats: Iterable[str]) -> time.struct_time:
   for pattern in regex_patterns:
-    try:
-      return time.strptime(re.match(pattern, path.name).group(1), date_format)
-    except (AttributeError, ValueError) as error:
-      logging.warning('Unable to parse %s with %s: %s.', path.name, pattern,
-                      error)
+    for date_format in date_formats:
+      try:
+        return time.strptime(re.match(pattern, path.name).group(1), date_format)
+      except (AttributeError, ValueError) as error:
+        logging.warning('Unable to parse %s with %s using format %s: %s.',
+                        path.name, pattern, date_format, error)
 
   raise ValueError(f'Failed to parse {path.name}.')
 
@@ -134,26 +135,26 @@ def _get_date_from_ally(path: pathlib.Path) -> time.struct_time:
 @_register_get_date('Chase')
 def _get_date_from_chase(path: pathlib.Path) -> time.struct_time:
   return _get_date_with_patterns_helper(path, {r'(\d+)-statements-x?\d+-\.pdf'},
-                                        '%Y%m%d')
+                                        {'%Y%m%d'})
 
 
 @_register_get_date('Discover')
 def _get_date_from_discover(path: pathlib.Path) -> time.struct_time:
   return _get_date_with_patterns_helper(path,
                                         {r'Discover-Statement-(\d+)-\d+\.pdf'},
-                                        '%Y%m%d')
+                                        {'%Y%m%d'})
 
 
 @_register_get_date('ETrade')
 def _get_date_from_etrade(path: pathlib.Path) -> time.struct_time:
   return _get_date_with_patterns_helper(
-      path, {r'Brokerage Statement - XXXX\d{4} - (\d+)\.pdf'}, '%Y%m')
+      path, {r'Brokerage Statement - XXXX\d{4} - (\d+)\.pdf'}, {'%Y%m'})
 
 
 @_register_get_date('Fidelity')
 def _get_date_from_fidelity(path: pathlib.Path) -> time.struct_time:
   return _get_date_with_patterns_helper(path, {r'Statement(\d+)\.pdf'},
-                                        '%m%d%Y')
+                                        {'%m%d%Y'})
 
 
 @_register_get_date('Marcus')
@@ -166,9 +167,11 @@ def _get_date_from_schwab(path: pathlib.Path) -> time.struct_time:
   return _get_date_with_patterns_helper(
       path, {
           r'AccountStatement(\d{6})\.pdf',
-          r'BrokerageStatement(\d{6})\d+\.pdf',
+          r'Bank Statement_(\d{4}-\d{2}-\d{2})_\d+\.pdf',
           r'BankStatement(\d{6})\d+\.pdf',
-      }, '%m%d%y')
+          r'Brokerage Statement_(\d{4}-\d{2}-\d{2})_\d+\.pdf',
+          r'BrokerageStatement(\d{6})\d+\.pdf',
+      }, {'%Y-%m-%d', '%m%d%y'})
 
 
 @_register_get_date('Wealthfront')
@@ -177,16 +180,16 @@ def _get_date_from_wealthfront(path: pathlib.Path) -> time.struct_time:
       path, {
           r'GREEN_DOT_STATEMENT_(\d{4}-\d{2})_.*\.pdf',
           r'STATEMENT_(\d{4}-\d{2})_.*\.pdf',
-      }, '%Y-%m')
+      }, {'%Y-%m'})
 
 
 @_register_get_date('WellsFargo')
 def _get_date_from_wealthfront(path: pathlib.Path) -> time.struct_time:
   return _get_date_with_patterns_helper(path, {r'(\d{6}) WellsFargo\.pdf'},
-                                        '%m%d%y')
+                                        {'%m%d%y'})
 
 
 @_register_get_date('Paypal')
 def _get_date_from_paypal(path: pathlib.Path) -> time.struct_time:
   return _get_date_with_patterns_helper(path, {r'statement-(.*-\d+)\.pdf'},
-                                        '%b-%Y')
+                                        {'%b-%Y'})

@@ -106,6 +106,28 @@ BUILT_IN_TEST_PARAMETERS = [
          ),
      )),
     (pathlib.Path(
+        '/path/to/Schwab/portfolio/Brokerage Statement_2022-12-31_123.pdf'),
+     ext_pb2.FinancialStatement(
+         institution='Schwab',
+         account='portfolio',
+         date=ext_pb2.FinancialStatement.Date(
+             year='2022',
+             month='12',
+             day='31',
+         ),
+     )),
+    (pathlib.Path(
+        '/path/to/Schwab/portfolio/Bank Statement_2022-12-31_321.pdf'),
+     ext_pb2.FinancialStatement(
+         institution='Schwab',
+         account='portfolio',
+         date=ext_pb2.FinancialStatement.Date(
+             year='2022',
+             month='12',
+             day='31',
+         ),
+     )),
+    (pathlib.Path(
         '/path/Wealthfront/robo/STATEMENT_2020-05_abcd1234_2020-06-01T10_41_04.123-45_67.pdf'
     ),
      ext_pb2.FinancialStatement(
