@@ -337,9 +337,9 @@ class SymFs:
             logging.warning('%s -> %s already exists; skipping %s.', item_path,
                             item_path.resolve(), item)
             continue
+          logging.info('%s -> %s', item_path, item)
           if not dry_run:
             item_path.symlink_to(item, target_is_directory=True)
-          logging.info('%s -> %s', item_path, item)
 
 
 def main(argv):
