@@ -339,7 +339,7 @@ class SymFs:
             continue
           logging.info('%s -> %s', item_path, item)
           if not dry_run:
-            item_path.symlink_to(item, target_is_directory=True)
+            item_path.symlink_to(item, target_is_directory=item.is_dir())
 
 
 def main(argv):
