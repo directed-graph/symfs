@@ -13,7 +13,7 @@ jobs:
       should_release: ${{ steps.metadata.outputs.should_release }}
       release_name: ${{ steps.metadata.outputs.release_name }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Generate Release Metadata
         id: metadata
@@ -36,7 +36,7 @@ jobs:
         - /bazel/cache/symfs:/mnt/cache
     if: ${{ needs.metadata.outputs.should_release == 'yes' }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - run: bazel test -c opt --test_output=all :all
 
@@ -56,7 +56,7 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ needs.metadata.outputs.should_release == 'yes' }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - uses: docker/setup-buildx-action@v1
 
