@@ -19,7 +19,7 @@ jobs:
 
       - run: bazel test --test_output=all :all
 
-      - run: bazel build :symfs.par
+      - run: bazel build :symfs_zip
 
   # Ensures Dockerfile continues to build.
   integrate-docker:

@@ -5,7 +5,7 @@ from absl.testing import parameterized
 from google.protobuf import any_pb2
 
 import derived_metadata
-import ext_pb2
+import protos.ext_pb2 as ext_pb2
 
 BUILT_IN_TEST_PARAMETERS = [
     (pathlib.Path(

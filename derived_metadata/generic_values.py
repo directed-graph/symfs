@@ -8,8 +8,8 @@ import random
 from derived_metadata.abstract_derived_metadata import AbstractDerivedMetadata
 from google.protobuf import any_pb2
 
-import symfs_pb2
-import ext_pb2
+import protos.ext_pb2 as ext_pb2
+import protos.symfs_pb2 as symfs_pb2
 
 
 class FixedGrouping(AbstractDerivedMetadata):

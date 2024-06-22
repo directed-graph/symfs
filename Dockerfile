@@ -10,9 +10,9 @@ WORKDIR /github/directed-graph/symfs
 COPY . .
 
 RUN bazel test -c opt --test_output=all :all && \
-    bazel build -c opt :symfs.par && \
+    bazel build -c opt :symfs_zip && \
     mkdir -p /usr/local/bin && \
-    cp bazel-bin/symfs.par /usr/local/bin/symfs.par && \
+    cp bazel-bin/symfs.zip /usr/local/bin/symfs.zip && \
     bazel clean
 
-ENTRYPOINT ["/usr/local/bin/symfs.par"]
+ENTRYPOINT ["python", "/usr/local/bin/symfs.zip"]

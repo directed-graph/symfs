@@ -17,8 +17,8 @@ except ImportError:
       'Not using the real GeneratedProtocolMessageType; using Any instead.')
 
 import derived_metadata
-import ext_pb2
-import symfs_pb2
+import protos.ext_pb2 as ext_pb2
+import protos.symfs_pb2 as symfs_pb2
 
 _EXT_PROTO_MODULES = {
     ext_pb2,

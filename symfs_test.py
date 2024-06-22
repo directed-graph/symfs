@@ -14,9 +14,9 @@ from google.protobuf import text_format
 from rules_python.python.runfiles import runfiles
 
 import ext_lib
-import ext_pb2
+import protos.ext_pb2 as ext_pb2
+import protos.symfs_pb2 as symfs_pb2
 import symfs
-import symfs_pb2
 
 r = runfiles.Create()
 TEST_CONFIG_FILE = r.Rlocation('everchanging/test_data/config.textproto')

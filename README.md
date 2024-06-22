@@ -43,7 +43,7 @@ configuration](./example/config.textproto) to group by the `casts` field. We
 then run with the following:
 
 ```
-symfs.par --config_file example/config.textproto
+python symfs.zip --config_file example/config.textproto
 ```
 
 Note that for the purposes of this example, we are using relative paths in the
@@ -71,7 +71,7 @@ to build for the purposes of development, then you can do so via
 If you have bazel, you can build by simply running:
 
 ```
-bazel build --define use_fast_cpp_protos=true :symfs.par
+bazel build --define use_fast_cpp_protos=true :symfs_zip
 ```
 
 The `--define` flag is important if you do not have
@@ -122,11 +122,11 @@ dependencies installed on your system.
 
 Go to the [latest
 release](https://github.com/directed-graph/symfs/releases/latest) and download
-the `symfs.par` binary. We also recommend downloading `symfs@.*` `systemd`
+the `symfs.zip` binary. We also recommend downloading `symfs@.*` `systemd`
 template files.
 
 While you can install the items anywhere you want, the general best practice is
-to put the `symfs.par` binary in `/usr/local/bin` and the `systemd` template
+to put the `symfs.zip` binary in `/usr/local/bin` and the `systemd` template
 files in `/usr/local/lib/systemd/user`.
 
 ### Manual
@@ -137,9 +137,9 @@ your environment, the general idea is as follows:
 
     git clone https://github.com/directed-graph/symfs.git
     cd symfs
-    bazel build :symfs.par
+    bazel build :symfs_zip
     bazel test :all  # Optional.
-    sudo cp bazel-bin/symfs.par /usr/local/bin
+    sudo cp bazel-bin/symfs.zip /usr/local/bin
     sudo cp install/systemd/* /usr/local/lib/systemd/user
 
 Main dependencies include Bazel and Protobuf.
@@ -183,9 +183,9 @@ And then override `ExecCondition` and `ExecStart` with the following:
     ExecCondition=
     ExecStart=
     ExecCondition=test -f ${path_0}
-    ExecStart=symfs.par ${SYMFS_ARGUMENTS} --config_file ${path_0}
+    ExecStart=python symfs.zip ${SYMFS_ARGUMENTS} --config_file ${path_0}
     ExecCondition=test -f ${path_1}
-    ExecStart=symfs.par ${SYMFS_ARGUMENTS} --config_file ${path_1}
+    ExecStart=python symfs.zip ${SYMFS_ARGUMENTS} --config_file ${path_1}
     ...
 
 Then, you can create a timer for _that_ service:

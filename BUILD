@@ -1,6 +1,6 @@
-load("@com_github_grpc_grpc//bazel:python_rules.bzl", "py_proto_library")
 load("@rules_proto//proto:defs.bzl", "proto_library")
-load("@subpar//:subpar.bzl", "par_binary")
+load("@rules_python//python:defs.bzl", "py_binary", "py_library", "py_test")
+load("@rules_python//python:proto.bzl", "py_proto_library")
 
 proto_library(
     name = "ext_proto",
@@ -40,7 +40,7 @@ py_library(
     ],
     deps = [
         ":symfs_py_proto",
-        "@com_github_protocolbuffers_protobuf//:protobuf_python",
+        "@com_google_protobuf//:protobuf_python",
     ],
 )
 
@@ -86,11 +86,11 @@ py_library(
         ":derived_metadata_lib",
         ":ext_py_proto",
         ":symfs_py_proto",
-        "@com_github_protocolbuffers_protobuf//:protobuf_python",
+        "@com_google_protobuf//:protobuf_python",
     ],
 )
 
-par_binary(
+py_binary(
     name = "symfs",
     srcs = ["symfs.py"],
     python_version = "PY3",
@@ -101,6 +101,12 @@ par_binary(
         "@abseil//absl/flags",
         "@abseil//absl/logging",
     ],
+)
+
+filegroup(
+    name = "symfs_zip",
+    srcs = [":symfs"],
+    output_group = "python_zip_file",
 )
 
 py_test(

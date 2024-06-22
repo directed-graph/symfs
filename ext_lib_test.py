@@ -4,7 +4,7 @@ from google.protobuf import descriptor_pb2
 
 import derived_metadata
 import ext_lib
-import ext_pb2
+import protos.ext_pb2 as ext_pb2
 
 
 class ExtLibTest(parameterized.TestCase):

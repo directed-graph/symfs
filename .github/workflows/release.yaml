@@ -40,11 +40,11 @@ jobs:
 
       - run: bazel test -c opt --test_output=all :all
 
-      - run: bazel build -c opt :symfs.par
+      - run: bazel build -c opt :symfs_zip
 
       - uses: ncipollo/release-action@v1
         with:
-          artifacts: 'bazel-bin/symfs.par,install/systemd/*'
+          artifacts: 'bazel-bin/symfs.zip,install/systemd/*'
           body: ""
           omitBody: true
           omitBodyDuringUpdate: true

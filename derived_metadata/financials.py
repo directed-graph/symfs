@@ -23,8 +23,8 @@ import time
 from absl import logging
 from google.protobuf import any_pb2
 
-import symfs_pb2
-import ext_pb2
+import protos.ext_pb2 as ext_pb2
+import protos.symfs_pb2 as symfs_pb2
 
 GetDateCallable = Callable[[pathlib.Path], str]
 _GET_DATE_BY_INSTITUTION: Mapping[str, GetDateCallable] = {}

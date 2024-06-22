@@ -14,7 +14,7 @@ except ImportError:
   logging.info(
       'Not using the real GeneratedProtocolMessageType; using Any instead.')
 
-import symfs_pb2
+import protos.symfs_pb2 as symfs_pb2
 
 
 class AbstractDerivedMetadata(abc.ABC):

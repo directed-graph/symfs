@@ -17,7 +17,7 @@ from google.protobuf import text_format
 from google.protobuf.internal.containers import RepeatedScalarFieldContainer
 
 import ext_lib
-import symfs_pb2
+import protos.symfs_pb2 as symfs_pb2
 
 _APPEND = flags.DEFINE_bool(
     'append', False, 'If set, items specified on the commandline will be '
