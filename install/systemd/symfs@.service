@@ -3,6 +3,7 @@ Description=SymFs job to generate SymFs for %I
 
 [Service]
 Environment="SYMFS_CONFIG=%I"
+Environment="SYMFS_BINARY=/usr/bin/symfs.zip"
 Type=oneshot
 ExecCondition=test -f ${SYMFS_CONFIG}
-ExecStart=python symfs.zip ${SYMFS_ARGUMENTS} --config_file ${SYMFS_CONFIG}
+ExecStart=python ${SYMFS_BINARY} ${SYMFS_ARGUMENTS} --config_file ${SYMFS_CONFIG}
