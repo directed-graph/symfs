@@ -7,7 +7,7 @@ load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 git_repository(
     name = "com_google_protobuf",
     remote = "https://github.com/protocolbuffers/protobuf",
-    tag = "v27.0",
+    tag = "v27.1",
 )
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
 protobuf_deps()
@@ -23,7 +23,7 @@ git_repository(
 git_repository(
     name = "rules_python",
     remote = "https://github.com/bazelbuild/rules_python",
-    tag = "0.32.2",
+    tag = "0.33.2",
 )
 load("@rules_python//python:repositories.bzl", "py_repositories")
 py_repositories()
