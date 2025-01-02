@@ -148,7 +148,11 @@ def _get_date_from_discover(path: pathlib.Path) -> time.struct_time:
 @_register_get_date('ETrade')
 def _get_date_from_etrade(path: pathlib.Path) -> time.struct_time:
   return _get_date_with_patterns_helper(
-      path, {r'Brokerage Statement - XXXX\d{4} - (\d+)\.pdf'}, {'%Y%m'})
+      path, {
+          r'Brokerage Statement - XXXX\d{4} - (\d+)\.pdf',
+          r'ClientStatements_\d{4}_(\d+)\.pdf',
+          r'MS_ClientStatements_\d{4}_(\d+)\.pdf',
+      }, {'%Y%m', '%m%d%y'})
 
 
 @_register_get_date('Fidelity')

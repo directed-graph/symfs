@@ -52,6 +52,28 @@ BUILT_IN_TEST_PARAMETERS = [
              day='01',
          ),
      )),
+    (pathlib.Path(
+        '/to/ETrade/brokerage/ClientStatements_1234_103124.pdf'),
+     ext_pb2.FinancialStatement(
+         institution='ETrade',
+         account='brokerage',
+         date=ext_pb2.FinancialStatement.Date(
+             year='2024',
+             month='10',
+             day='31',
+         ),
+     )),
+    (pathlib.Path(
+        '/to/ETrade/brokerage/MS_ClientStatements_1234_202408.pdf'),
+     ext_pb2.FinancialStatement(
+         institution='ETrade',
+         account='brokerage',
+         date=ext_pb2.FinancialStatement.Date(
+             year='2024',
+             month='08',
+             day='01',
+         ),
+     )),
     (pathlib.Path('/Fidelity/Individual/Statement07312021.pdf'),
      ext_pb2.FinancialStatement(
          institution='Fidelity',
