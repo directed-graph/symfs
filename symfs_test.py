@@ -11,7 +11,7 @@ from absl.testing import flagsaver
 from absl.testing import parameterized
 from google.protobuf import any_pb2
 from google.protobuf import text_format
-from rules_python.python.runfiles import runfiles
+from python.runfiles import runfiles
 
 import ext_lib
 import protos.ext_pb2 as ext_pb2

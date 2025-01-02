@@ -6,7 +6,7 @@ proto_library(
     name = "ext_proto",
     srcs = ["protos/ext.proto"],
     deps = [
-        "@com_google_protobuf//:descriptor_proto",
+        "@protobuf//:descriptor_proto",
     ],
 )
 
@@ -14,8 +14,8 @@ proto_library(
     name = "symfs_proto",
     srcs = ["protos/symfs.proto"],
     deps = [
-        "@com_google_protobuf//:any_proto",
-        "@com_google_protobuf//:descriptor_proto",
+        "@protobuf//:any_proto",
+        "@protobuf//:descriptor_proto",
     ],
 )
 
@@ -40,7 +40,7 @@ py_library(
     ],
     deps = [
         ":symfs_py_proto",
-        "@com_google_protobuf//:protobuf_python",
+        "@protobuf//:protobuf_python",
     ],
 )
 
@@ -57,7 +57,7 @@ py_library(
         ":derived_metadata/abstract_derived_metadata",
         ":ext_py_proto",
         ":symfs_py_proto",
-        "@abseil//absl/logging",
+        "@abseil-py//absl/logging",
     ],
 )
 
@@ -72,8 +72,8 @@ py_library(
         deps = [
             ":derived_metadata_lib",
             ":ext_py_proto",
-            "@abseil//absl/testing:absltest",
-            "@abseil//absl/testing:parameterized",
+            "@abseil-py//absl/testing:absltest",
+            "@abseil-py//absl/testing:parameterized",
         ],
     )
     for module in glob(["derived_metadata/*_test.py"])
@@ -86,7 +86,7 @@ py_library(
         ":derived_metadata_lib",
         ":ext_py_proto",
         ":symfs_py_proto",
-        "@com_google_protobuf//:protobuf_python",
+        "@protobuf//:protobuf_python",
     ],
 )
 
@@ -97,9 +97,9 @@ py_binary(
     deps = [
         ":ext_lib",
         ":symfs_py_proto",
-        "@abseil//absl:app",
-        "@abseil//absl/flags",
-        "@abseil//absl/logging",
+        "@abseil-py//absl:app",
+        "@abseil-py//absl/flags",
+        "@abseil-py//absl/logging",
     ],
 )
 
@@ -117,9 +117,9 @@ py_test(
     deps = [
         ":symfs",
         ":symfs_py_proto",
-        "@abseil//absl/testing:absltest",
-        "@abseil//absl/testing:flagsaver",
-        "@abseil//absl/testing:parameterized",
+        "@abseil-py//absl/testing:absltest",
+        "@abseil-py//absl/testing:flagsaver",
+        "@abseil-py//absl/testing:parameterized",
         "@rules_python//python/runfiles",
     ],
 )
@@ -132,7 +132,7 @@ py_test(
         ":derived_metadata_lib",
         ":ext_lib",
         ":ext_py_proto",
-        "@abseil//absl/testing:absltest",
-        "@abseil//absl/testing:parameterized",
+        "@abseil-py//absl/testing:absltest",
+        "@abseil-py//absl/testing:parameterized",
     ],
 )
